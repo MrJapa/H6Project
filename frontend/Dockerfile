@@ -1,5 +1,5 @@
 # frontend/Dockerfile
-FROM node:18
+FROM node:19
 
 # Set the working directory inside the container
 WORKDIR /usr/src/app
