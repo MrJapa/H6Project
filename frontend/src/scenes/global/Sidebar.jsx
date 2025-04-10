@@ -2,11 +2,13 @@ import { useState } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
 import { Box, IconButton, Typography, useTheme } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 //import "react-pro-sidebar/dist/css/styles.css";
 import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
 import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
+import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
 import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
 import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
 import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
@@ -20,13 +22,17 @@ import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const navigate = useNavigate();
+
   return (
     <MenuItem
       active={selected === title}
       style={{
         color: colors.white,
       }}
-      onClick={() => setSelected(title)}
+      onClick={() => {
+        setSelected(title);
+        navigate(to);}}
       icon={icon}
     >
       <Typography>{title}</Typography>
@@ -38,7 +44,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 const CustomSidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  console.log(colors); // Check the colors object in the console
+  //console.log(colors); // Check the colors object in the console
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
 
@@ -105,21 +111,21 @@ const CustomSidebar = () => {
               Data
             </Typography>
             <Item
-              title="Manage Team"
-              to="/team"
-              icon={<PeopleOutlinedIcon />}
+              title="Postings"
+              to="/form"
+              icon={<AccountBalanceOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Contacts Information"
-              to="/contacts"
+              title="Customers"
+              to="/customers"
               icon={<ContactsOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
-              title="Invoices Balances"
+              title="Invoices"
               to="/invoices"
               icon={<ReceiptOutlinedIcon />}
               selected={selected}
