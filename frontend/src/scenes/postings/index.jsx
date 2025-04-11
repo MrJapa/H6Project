@@ -37,20 +37,27 @@ const Postings = () => {
 
     const columns = [
         { field: "id", headerName: "ID" },
-        { field: "accountHandleNumber", headerName: "Account", cellClassName: "name-column--cell" },
+        { field: "accountHandleNumber", headerName: "Account" },
+        { field: "postDescription", headerName: "Description", flex: 1, headerAlign: "left", align: "left" },
         { field: "postAmount", headerName: "Amount", type: "number", headerAlign: "left", align: "left" },
+        { field: "postCurrency", headerName: "Currency", headerAlign: "left", align: "left"},
+        { field: "postDate", headerName: "Date", type: "Date", headerAlign: "left", align: "left" },
+
     ];
 
     return (
-    <Box>
+    <Box m="20px">
         <Header title="POSTINGS" subtitle="Managing financial postings"/>
-        <DataGrid
-        rows={rows}
-        columns={columns}
-        pageSize={10}
-        rowsPerPageOptions={[10]}
-        loading={loading}
-        />
+        <Box m="40px 0 0 0" height="75vh">
+          <DataGrid
+          rows={rows}
+          columns={columns}
+          pageSize={10}
+          rowsPerPageOptions={[10]}
+          loading={loading}
+          checkboxSelection
+          />
+        </Box>
     </Box>
     )
 

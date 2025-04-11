@@ -20,7 +20,7 @@ class User(models.Model):
     
 class Postings(models.Model):
     id = models.IntegerField(primary_key=True)
-    companyId = models.ForeignKey(Company, on_delete=models.CASCADE)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE)
     accountHandleNumber = models.IntegerField()
     postDate = models.DateField()
     postAmount = models.DecimalField(max_digits=15, decimal_places=2)
@@ -28,4 +28,4 @@ class Postings(models.Model):
     postDescription = models.CharField(max_length=100)
 
     def __str__(self):
-        return str(self.postId)
+        return str(self.id)
