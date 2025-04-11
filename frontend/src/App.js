@@ -6,6 +6,7 @@ import Topbar from "./scenes/global/Topbar";
 import CustomSideBar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import Form from "./scenes/form";
+import Postings from "./scenes/postings";
 
 
 function App() {
@@ -20,6 +21,7 @@ function App() {
             <Topbar/>
             <Routes>
               <Route path="/" element={<Dashboard/>}/>
+              <Route path="/postings" element={<Postings/>}/>
               <Route path="/form" element={<Form/>}/>
             </Routes>
           </main>

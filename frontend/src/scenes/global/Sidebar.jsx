@@ -112,7 +112,7 @@ const CustomSidebar = () => {
             </Typography>
             <Item
               title="Postings"
-              to="/form"
+              to="/postings"
               icon={<AccountBalanceOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}

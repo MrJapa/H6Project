@@ -1,0 +1,60 @@
+import { Box, Typography, useTheme } from "@mui/material";
+import { tokens } from "../../theme";
+import { DataGrid } from "@mui/x-data-grid";
+import { mockDataTeam } from "../../data/mockData";
+import AdminPanelSettingsOulinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
+import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
+import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import Header from "../../components/Header";
+import React, { useState, useEffect } from "react";
+import { use } from "react";
+
+
+const Postings = () => {
+    const theme = useTheme();
+    const colors = tokens(theme.palette.mode);
+    const [rows, setRows] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        // Replace the URL with your Django API endpoint
+        fetch('http://localhost:8000/api/postings/')
+          .then(response => response.json())
+          .then(data => {
+            // Ensure that every item has a unique "id" field.
+            const formattedData = data.map(item => ({
+              ...item,
+              id: item.id, // Django will usually provide an id if it’s the primary key.
+            }));
+            setRows(formattedData);
+            setLoading(false);
+          })
+          .catch(error => {
+            console.error('Error fetching postings:', error);
+            setLoading(false);
+          });
+      }, []);
+
+    const columns = [
+        { field: "id", headerName: "ID" },
+        { field: "accountHandleNumber", headerName: "Account", cellClassName: "name-column--cell" },
+        { field: "postAmount", headerName: "Amount", type: "number", headerAlign: "left", align: "left" },
+    ];
+
+    return (
+    <Box>
+        <Header title="POSTINGS" subtitle="Managing financial postings"/>
+        <DataGrid
+        rows={rows}
+        columns={columns}
+        pageSize={10}
+        rowsPerPageOptions={[10]}
+        loading={loading}
+        />
+    </Box>
+    )
+
+}
+
+
+export default Postings;

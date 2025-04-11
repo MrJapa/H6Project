@@ -2,15 +2,14 @@ from django.db import models
 
 # Create your models here.
 class Company(models.Model):
-    companyId = models.CharField(primary_key=True, max_length=256)
+    id = models.IntegerField(primary_key=True)
     companyName = models.CharField(max_length=100)
-    companyVat = models.IntegerField(null=True)
 
     def __str__(self):
         return self.companyName
     
 class User(models.Model):
-    userId = models.IntegerField(primary_key=True)
+    id = models.IntegerField(primary_key=True)
     userName = models.CharField(max_length=100)
     userEmail = models.EmailField(max_length=100)
     userPassword = models.CharField(max_length=100)
@@ -19,14 +18,14 @@ class User(models.Model):
     def __str__(self):
         return self.userName
     
-class Transaction(models.Model):
-    transactionId = models.CharField(max_length=256)
+class Postings(models.Model):
+    id = models.IntegerField(primary_key=True)
     companyId = models.ForeignKey(Company, on_delete=models.CASCADE)
-    accountHandleNumber = models.CharField(max_length=10)
-    transactionDate = models.DateField()
-    transactionAmount = models.DecimalField(max_digits=10, decimal_places=2)
-    transactionCurrency = models.CharField(max_length=100)
-    transactionDescription = models.CharField(max_length=100)
+    accountHandleNumber = models.IntegerField()
+    postDate = models.DateField()
+    postAmount = models.DecimalField(max_digits=15, decimal_places=2)
+    postCurrency = models.CharField(max_length=100)
+    postDescription = models.CharField(max_length=100)
 
     def __str__(self):
-        return self.transactionAmount
+        return str(self.postId)
