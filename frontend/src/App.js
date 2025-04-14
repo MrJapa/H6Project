@@ -38,7 +38,7 @@ function App() {
             <TopbarTheme/>
             <Routes>
               <Route path="/" element={<Login/>}/>
-              <Route path="*" element={<Navigate to="/login" replace />} />
+              <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
             </main>
           </div>
