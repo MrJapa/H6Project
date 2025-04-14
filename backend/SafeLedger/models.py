@@ -2,24 +2,30 @@ from django.db import models
 
 # Create your models here.
 class Company(models.Model):
-    id = models.IntegerField(primary_key=True)
+    #id = models.IntegerField(primary_key=True) //Django automatically creates an id field as primary key
     companyName = models.CharField(max_length=100)
 
     def __str__(self):
         return self.companyName
     
 class User(models.Model):
-    id = models.IntegerField(primary_key=True)
+    ROLE_CHOICES = [
+        ('accountant', 'Accountant'),
+        ('customer', 'Customer'),
+        ('superuser', 'Superuser'),
+    ]
+    #id = models.IntegerField(primary_key=True)
     userName = models.CharField(max_length=100)
     userEmail = models.EmailField(max_length=100)
     userPassword = models.CharField(max_length=100)
-    companyId = models.ForeignKey(Company, on_delete=models.CASCADE)
+    companies = models.ManyToManyField(Company)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
 
     def __str__(self):
-        return self.userName
+        return f"{self.userName} ({self.get_role_display()})"
     
 class Postings(models.Model):
-    id = models.IntegerField(primary_key=True)
+    #id = models.IntegerField(primary_key=True)
     company = models.ForeignKey(Company, on_delete=models.CASCADE)
     accountHandleNumber = models.IntegerField()
     postDate = models.DateField()
