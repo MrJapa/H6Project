@@ -1,3 +1,4 @@
+#backend/core/settings.py
 """
 Django settings for core project.
 
@@ -25,7 +26,7 @@ SECRET_KEY = 'django-insecure-#$gfg3@s_b((i0k7&r25xj*c2-@e9o-_m@8h#*ot4q=e$f-o+g
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost:3000', '*']
 
 
 # Application definition
@@ -40,6 +41,7 @@ INSTALLED_APPS = [
     'SafeLedger',
     'rest_framework',
     'corsheaders',
+    
     
 ]
 
@@ -61,7 +63,15 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
 ]
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
+AUTH_USER_MODEL = 'SafeLedger.User'
+
+CSRF_TRUSTED_ORIGINS = [ "http://localhost:3000",]
 
 ROOT_URLCONF = 'core.urls'
 
