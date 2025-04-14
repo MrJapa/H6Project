@@ -1,11 +1,12 @@
+#backend/SafeLedger/admin.py
 from django.contrib import admin
 from .models import User, Company, Postings
 
 @admin.register(User)
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('userName', 'userEmail', 'role')
+    list_display = ('username', 'email', 'role')
     list_filter = ('role',)
-    search_fields = ('userName', 'userEmail')
+    search_fields = ('username', 'email')
     filter_horizontal = ('companies',)
 
 @admin.register(Company)
