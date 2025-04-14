@@ -1,4 +1,7 @@
+#backend/SafeLedger/models.py
+
 from django.db import models
+from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class Company(models.Model):
@@ -8,21 +11,20 @@ class Company(models.Model):
     def __str__(self):
         return self.companyName
     
-class User(models.Model):
+class User(AbstractUser):
     ROLE_CHOICES = [
         ('accountant', 'Accountant'),
         ('customer', 'Customer'),
         ('superuser', 'Superuser'),
     ]
-    #id = models.IntegerField(primary_key=True)
-    userName = models.CharField(max_length=100)
-    userEmail = models.EmailField(max_length=100)
-    userPassword = models.CharField(max_length=100)
+
     companies = models.ManyToManyField(Company)
     role = models.CharField(max_length=20, choices=ROLE_CHOICES, default='customer')
 
+    REQUIRED_FIELDS = ['email']  # Add required fields for creating a superuser
+
     def __str__(self):
-        return f"{self.userName} ({self.get_role_display()})"
+        return f"{self.email} ({self.get_role_display()})"
     
 class Postings(models.Model):
     #id = models.IntegerField(primary_key=True)
