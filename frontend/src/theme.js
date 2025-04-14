@@ -6,12 +6,12 @@ export const tokens = (mode) => {
   return mode === "dark"
     ? {
         // Dark mode colors
-        primary: "#21252B",
-        secondary: "#282C34",
+        primary: "#233044",
+        secondary: "#1C2635",
         grey: "#7E9096",
         blue: "#61AFEF",
         light_blue: "#56B6C2",
-        text: "#e0e0e0",
+        text: "#FFFFFF",
         green: "#98C379",
         yellow: "#E5C07B",
         red: "#E06C75",
@@ -19,8 +19,8 @@ export const tokens = (mode) => {
       }
     : {
         // Light mode colors
-        primary: "#e9ecef",
-        secondary: "#f8f9fa",
+        primary: "#FFFFFF",
+        secondary: "#F6F9FC",
         grey: "#7E9096",
         blue: "#61AFEF",
         light_blue: "#56B6C2",
