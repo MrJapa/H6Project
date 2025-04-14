@@ -1,3 +1,5 @@
 /CashBook.csv
 /vBICompanies.csv
 node_modules
+
+**/__pycache__/
