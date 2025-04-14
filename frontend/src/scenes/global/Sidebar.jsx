@@ -1,23 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, IconButton, Typography, useTheme } from "@mui/material";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
-//import "react-pro-sidebar/dist/css/styles.css";
+import { Box, IconButton, Typography, useTheme, Select, MenuItem as MuiMenuItem } from "@mui/material";
+import { Link, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import PeopleOutlinedIcon from "@mui/icons-material/PeopleOutlined";
-import ContactsOutlinedIcon from "@mui/icons-material/ContactsOutlined";
-import AccountBalanceOutlinedIcon from '@mui/icons-material/AccountBalanceOutlined';
-import ReceiptOutlinedIcon from "@mui/icons-material/ReceiptOutlined";
-import PersonOutlinedIcon from "@mui/icons-material/PersonOutlined";
-import CalendarTodayOutlinedIcon from "@mui/icons-material/CalendarTodayOutlined";
-import HelpOutlineOutlinedIcon from "@mui/icons-material/HelpOutlineOutlined";
-import BarChartOutlinedIcon from "@mui/icons-material/BarChartOutlined";
-import PieChartOutlineOutlinedIcon from "@mui/icons-material/PieChartOutlineOutlined";
-import TimelineOutlinedIcon from "@mui/icons-material/TimelineOutlined";
+import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
-import MapOutlinedIcon from "@mui/icons-material/MapOutlined";
 
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
@@ -32,7 +20,8 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
       }}
       onClick={() => {
         setSelected(title);
-        navigate(to);}}
+        navigate(to);
+      }}
       icon={icon}
     >
       <Typography>{title}</Typography>
@@ -44,13 +33,52 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
 const CustomSidebar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  //console.log(colors); // Check the colors object in the console
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [role, setRole] = useState("");
+  const [companies, setCompanies] = useState([]); // Ensure companies is initialized as an empty array
+  const [selectedCompanies, setSelectedCompanies] = useState([]);
+
+  // Fetch user details on component mount
+  useEffect(() => {
+    fetch("http://localhost:8000/api/user-details/", {
+      method: "GET",
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.isAuthenticated && data.user) {
+          // Destructure user object
+          const { username, email, role, companies } = data.user;
+          setEmail(email);
+          setUsername(username);
+          setRole(role);
+          setCompanies(companies || []);
+          
+          // If role is accountant and companies should have ids,
+          // ensure that the companies array is in the correct object format.
+          if (role === "accountant") {
+            setSelectedCompanies(
+              (companies || []).map((company) => {
+                // Check if company is a string or an object
+                return typeof company === "string" ? company : company.id;
+              })
+            );
+          }
+        }
+      })
+      .catch((error) => console.error("Error fetching user details:", error));
+  }, []);
+
+  const handleCompanyChange = (event) => {
+    setSelectedCompanies(event.target.value);
+  };
 
   return (
     <Box>
-      <Sidebar collapsed={isCollapsed} style={{ height: "100vh" }} backgroundColor={colors.primary} >
+      <Sidebar collapsed={isCollapsed} style={{ height: "100vh" }} backgroundColor={colors.primary}>
         <Menu iconShape="square">
           {/* LOGO AND MENU ICON */}
           <MenuItem
@@ -79,19 +107,43 @@ const CustomSidebar = () => {
           </MenuItem>
 
           {!isCollapsed && (
-              <Box textAlign="center">
+            <Box textAlign="center">
+              {/* Display Company Name or Dropdown */}
+              {role === "accountant" ? (
+                <Select
+                  multiple
+                  value={selectedCompanies}
+                  onChange={handleCompanyChange}
+                  displayEmpty
+                  sx={{
+                    backgroundColor: colors.white,
+                    color: colors.text,
+                    marginBottom: "10px",
+                  }}
+                >
+                  {companies.map((company, index) => (
+                    // If company is a string, use it directly; if it's an object, use company.companyName
+                    <MuiMenuItem key={index} value={typeof company === "string" ? company : company.id}>
+                      {typeof company === "string" ? company : company.companyName}
+                    </MuiMenuItem>
+                  ))}
+                </Select>
+              ) : (
                 <Typography
                   variant="h2"
                   color={colors.text}
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Redmark
+                  {companies.length > 0 ? (typeof companies[0] === "string" ? companies[0] : companies[0].companyName) : "No Company"}
                 </Typography>
-                <Typography variant="h5" color={colors.text} marginBottom="10px">
-                  Morten Christensen
-                </Typography>
-              </Box>
+              )}
+
+              {/* Display Username */}
+              <Typography variant="h5" color={colors.text} marginBottom="10px">
+                {username}
+              </Typography>
+            </Box>
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "10%"}>
@@ -102,7 +154,6 @@ const CustomSidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-
             <Typography
               variant="h6"
               color={colors.purple}
@@ -114,71 +165,6 @@ const CustomSidebar = () => {
               title="Postings"
               to="/postings"
               icon={<AccountBalanceOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Customers"
-              to="/customers"
-              icon={<ContactsOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Invoices"
-              to="/invoices"
-              icon={<ReceiptOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h6"
-              color={colors.purple}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Pages
-            </Typography>
-            <Item
-              title="Profile Form"
-              to="/form"
-              icon={<PersonOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Calendar"
-              to="/calendar"
-              icon={<CalendarTodayOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-
-            <Typography
-              variant="h6"
-              color={colors.purple}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
-              Charts
-            </Typography>
-            <Item
-              title="Bar Chart"
-              to="/bar"
-              icon={<BarChartOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Pie Chart"
-              to="/pie"
-              icon={<PieChartOutlineOutlinedIcon />}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/line"
-              icon={<TimelineOutlinedIcon />}
               selected={selected}
               setSelected={setSelected}
             />
