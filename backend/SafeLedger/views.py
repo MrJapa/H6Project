@@ -1,26 +1,85 @@
+#backend/SafeLedger/views.py
+import json
 from django.shortcuts import render
 from rest_framework import generics
 from .models import User, Postings, Company
 from .serializers import PostingsSerializer
-from django.contrib.auth import authenticate
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from rest_framework import status
-from rest_framework.authtoken.models import Token
+from django.contrib.auth import authenticate, login, logout, get_user_model
+from django.contrib.auth.decorators import login_required
+from django.http import JsonResponse
+from django.views.decorators.csrf import ensure_csrf_cookie
+from django.views.decorators.http import require_POST
 
 class PostingsListView(generics.ListCreateAPIView):
     queryset = Postings.objects.all()
     serializer_class = PostingsSerializer
 
-@api_view(['POST'])
+@require_POST
 def login_view(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    user = authenticate(request, username=email, password=password)
-    if user is not None:
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
-    else:
-        return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    data = json.loads(request.body)
+    identifier = data.get('email')  # using the "email" field as identifier
+    password = data.get('password')
 
-# Create your views here.
+    if not identifier or not password:
+        return JsonResponse(
+            {'error': 'Username (or email) and password are required.'},
+            status=400
+        )
+
+    User = get_user_model()
+
+    try:
+        # Try first by username
+        user_obj = User.objects.get(username=identifier)
+    except User.DoesNotExist:
+        try:
+            # Then try by email if not found by username
+            user_obj = User.objects.get(email=identifier)
+        except User.DoesNotExist:
+            return JsonResponse(
+                {'error': 'Invalid username or password.'},
+                status=401
+            )
+
+    user = authenticate(request, username=user_obj.username, password=password)
+    if user is None:
+        return JsonResponse(
+            {'error': 'Invalid username or password.'},
+            status=401
+        )
+
+    login(request, user)
+    return JsonResponse({'message': 'Login successful.'}, status=200)
+
+def logout_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'error': 'User is not logged in.'}, status=401)
+    logout(request)
+    return JsonResponse({'message': 'Logout successful.'}, status=200)
+
+@login_required
+def get_user_details(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'isAuthenticated': False}, status=401)
+    user_data = {
+        'username': request.user.username,
+        'email': request.user.email,
+        'role': request.user.role,
+        'companies': [company.companyName for company in request.user.companies.all()]
+    }
+    return JsonResponse({'isAuthenticated': True, 'user': user_data}, status=200)
+
+@ensure_csrf_cookie
+def set_csrf_cookie(request):
+    return JsonResponse({'csrfToken': request.META.get('CSRF_COOKIE')}, status=200)
+
+@ensure_csrf_cookie
+def session_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'isAuthenticated': False}, status=401)
+    return JsonResponse({'isAuthenticated': True, 'user': {'email': request.user.username}}, status=200)
+
+def whoami_view(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({'isAuthenticated': False}, status=401)
+    return JsonResponse({'user': {'email': request.user.username}}, status=200)

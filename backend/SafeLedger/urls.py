@@ -1,7 +1,13 @@
+#backend/SafeLedger/urls.py
 from django.urls import path
-from .views import PostingsListView, login_view
+from . import views
 
 urlpatterns = [
-    path('postings/', PostingsListView.as_view(), name='postings-list'),  # URL for the postings list view
-    path('login/', login_view, name='login'),  # URL for the login view
+    path('postings/', views.PostingsListView.as_view(), name='postings-list'),  # URL for the postings list view
+    path('login/', views.login_view, name='login'),  # URL for the login view
+    path('logout/', views.logout_view, name='logout'),  # URL for the logout view
+    path('session/', views.session_view, name='session'),  # URL for the session view
+    path('whoami/', views.whoami_view, name='whoami'),  # URL for the whoami view
+    path('csrf/', views.set_csrf_cookie, name='set_csrf_cookie'),
+    path('user-details/', views.get_user_details, name='user-details'),  # URL for the user details view
 ]
