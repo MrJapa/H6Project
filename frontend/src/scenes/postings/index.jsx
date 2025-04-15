@@ -1,9 +1,12 @@
-import { Box, Typography, useTheme } from "@mui/material";
+import { Box, Typography, useTheme, IconButton } from "@mui/material";
 import { tokens } from "../../theme";
 import { DataGrid } from "@mui/x-data-grid";
 import Header from "../../components/Header";
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import InputBase from "@mui/material/InputBase";
+import SearchIcon from "@mui/icons-material/Search";
+import AddIcon from '@mui/icons-material/Add';
 
 const fetchPostings = async () => {
   const response = await fetch('http://localhost:8000/api/postings/', {
@@ -26,6 +29,24 @@ const Postings = () => {
       queryFn: fetchPostings,
     });
 
+    const [searchText, setSearchText] = useState("");
+    const [filteredRows, setFilteredRows] = useState(rows);
+  
+    // Update filtered rows whenever rows or searchText changes
+    React.useEffect(() => {
+      setFilteredRows(
+        rows.filter((row) =>
+          Object.values(row)
+            .join(" ")
+            .toLowerCase()
+            .includes(searchText.toLowerCase())
+        )
+      );
+    }, [rows, searchText]);
+
+    const handleSearch = (event) => {
+      setSearchText(event.target.value);
+    };
 
     // useEffect(() => {
     //     
@@ -52,16 +73,31 @@ const Postings = () => {
         { field: "postDescription", headerName: "Description", flex: 1, headerAlign: "left", align: "left" },
         { field: "postAmount", headerName: "Amount", type: "number", headerAlign: "left", align: "left" },
         { field: "postCurrency", headerName: "Currency", headerAlign: "left", align: "left"},
-        { field: "postDate", headerName: "Date", type: "Date", headerAlign: "left", align: "left" },
+        { field: "postDate", headerName: "Date", headerAlign: "left", align: "left" },
 
     ];
 
     return (
     <Box m="20px">
         <Header title="POSTINGS" subtitle="Managing financial postings"/>
-        <Box m="40px 0 0 0" height="75vh">
+        <Box display="flex" justifyContent="space-between" marginBottom="15px">
+            {/* SEARCH BAR */}
+            <Box display="flex" backgroundColor={colors.primary} borderRadius="3px">
+                <InputBase sx={{ ml: 2, flex: 1 }} placeholder="Search..." value={searchText} onChange={handleSearch} />
+                <IconButton type="button" sx={{ p: 1 }}>
+                    <SearchIcon />
+                </IconButton>
+            </Box>
+            <Box display="flex" alignItems="center" backgroundColor={colors.primary} borderRadius="3px"/>
+            <Box display="flex">
+                <IconButton onClick={() => alert('Add Posting')} sx={{ p: 1 }}>
+                    <AddIcon />
+                </IconButton>
+            </Box>
+        </Box>
+        <Box m="0 0 0 0" height="70vh">
           <DataGrid
-          rows={rows}
+          rows={filteredRows}
           columns={columns}
           pageSize={10}
           rowsPerPageOptions={[10]}
