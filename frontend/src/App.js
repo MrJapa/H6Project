@@ -10,7 +10,10 @@ import Dashboard from "./scenes/dashboard";
 import Form from "./scenes/form";
 import Postings from "./scenes/postings";
 import Login from "./scenes/login";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
+
+const queryClient = new QueryClient();
 
 function App() {
   const [theme, colorMode] = useMode();
@@ -32,6 +35,7 @@ function App() {
   }, []);
 
   return (
+    <QueryClientProvider client={queryClient}>
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -60,6 +64,7 @@ function App() {
         )}
       </ThemeProvider>
     </ColorModeContext.Provider>
+    </QueryClientProvider>
   );
 }
 
