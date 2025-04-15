@@ -1,20 +1,41 @@
 import { useState, useEffect } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, IconButton, Typography, useTheme, Select, MenuItem as MuiMenuItem } from "@mui/material";
+import { Box, IconButton, Typography, useTheme, Select, Divider, MenuItem as MuiMenuItem } from "@mui/material";
+import { styled } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
-import AccountBalanceOutlinedIcon from "@mui/icons-material/AccountBalanceOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline';
+import TimelineIcon from '@mui/icons-material/Timeline';
+import PostAddIcon from '@mui/icons-material/PostAdd';
 
+// Create a styled version of MenuItem that uses your theme's tokens for hover and active states.
+const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
+  "&& a.ps-menu-button": {
+    transition: "background-color 0.3s",
+  },
+  "&& a.ps-menu-button:hover": {
+    backgroundColor: `${tokens(theme.palette.mode).secondary} !important`,
+    color: `${tokens(theme.palette.mode).purple}`,
+  },
+  "&&.active a.ps-menu-button": {
+    color: `${tokens(theme.palette.mode).text} !important`,
+    backgroundColor: `${tokens(theme.palette.mode).purple} !important`,
+  },
+}));
+
+// Item component: adds an "active" class if the item is selected.
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-
+  
   return (
-    <MenuItem
-      active={selected === title}
+    <StyledMenuItem
+      className={selected === title ? "active" : ""}
       style={{
         color: colors.white,
       }}
@@ -26,7 +47,7 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
     >
       <Typography>{title}</Typography>
       <Link to={to} />
-    </MenuItem>
+    </StyledMenuItem>
   );
 };
 
@@ -38,7 +59,7 @@ const CustomSidebar = () => {
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
-  const [companies, setCompanies] = useState([]); // Ensure companies is initialized as an empty array
+  const [companies, setCompanies] = useState([]);
   const [selectedCompanies, setSelectedCompanies] = useState([]);
 
   // Fetch user details on component mount
@@ -50,21 +71,16 @@ const CustomSidebar = () => {
       .then((response) => response.json())
       .then((data) => {
         if (data.isAuthenticated && data.user) {
-          // Destructure user object
           const { username, email, role, companies } = data.user;
           setEmail(email);
           setUsername(username);
           setRole(role);
           setCompanies(companies || []);
-          
-          // If role is accountant and companies should have ids,
-          // ensure that the companies array is in the correct object format.
           if (role === "accountant") {
             setSelectedCompanies(
-              (companies || []).map((company) => {
-                // Check if company is a string or an object
-                return typeof company === "string" ? company : company.id;
-              })
+              (companies || []).map((company) =>
+                typeof company === "string" ? company : company.id
+              )
             );
           }
         }
@@ -77,11 +93,11 @@ const CustomSidebar = () => {
   };
 
   return (
-    <Box>
-      <Sidebar collapsed={isCollapsed} style={{ height: "100vh" }} backgroundColor={colors.primary}>
+    <Sidebar collapsed={isCollapsed} style={{ height: "100vh" }} backgroundColor={colors.primary}>
+      <Box display="flex" flexDirection="column" height="100%">
         <Menu iconShape="square">
-          {/* LOGO AND MENU ICON */}
-          <MenuItem
+          {/* LOGO / Collapse Toggle */}
+          <StyledMenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
             style={{
@@ -90,12 +106,7 @@ const CustomSidebar = () => {
             }}
           >
             {!isCollapsed && (
-              <Box
-                display="flex"
-                justifyContent="space-between"
-                alignItems="center"
-                ml="15px"
-              >
+              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
                 <Typography variant="h3" color={colors.purple}>
                   SafeLedger
                 </Typography>
@@ -104,11 +115,10 @@ const CustomSidebar = () => {
                 </IconButton>
               </Box>
             )}
-          </MenuItem>
+          </StyledMenuItem>
 
           {!isCollapsed && (
             <Box textAlign="center">
-              {/* Display Company Name or Dropdown */}
               {role === "accountant" ? (
                 <Select
                   multiple
@@ -122,8 +132,10 @@ const CustomSidebar = () => {
                   }}
                 >
                   {companies.map((company, index) => (
-                    // If company is a string, use it directly; if it's an object, use company.companyName
-                    <MuiMenuItem key={index} value={typeof company === "string" ? company : company.id}>
+                    <MuiMenuItem
+                      key={index}
+                      value={typeof company === "string" ? company : company.id}
+                    >
                       {typeof company === "string" ? company : company.companyName}
                     </MuiMenuItem>
                   ))}
@@ -139,14 +151,16 @@ const CustomSidebar = () => {
                 </Typography>
               )}
 
-              {/* Display Username */}
               <Typography variant="h5" color={colors.text} marginBottom="10px">
                 {username}
               </Typography>
             </Box>
           )}
 
-          <Box paddingLeft={isCollapsed ? undefined : "10%"}>
+          <Box paddingLeft={isCollapsed ? undefined : "0%"}>
+            <Typography variant="h6" color={colors.purple} sx={{ m: "15px 0 5px 20px" }}>
+              Home
+            </Typography>
             <Item
               title="Dashboard"
               to="/"
@@ -154,24 +168,62 @@ const CustomSidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Typography
-              variant="h6"
-              color={colors.purple}
-              sx={{ m: "15px 0 5px 20px" }}
-            >
+
+            <Typography variant="h6" color={colors.purple} sx={{ m: "15px 0 5px 20px" }}>
               Data
             </Typography>
             <Item
               title="Postings"
               to="/postings"
-              icon={<AccountBalanceOutlinedIcon />}
+              icon={<PostAddIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Typography variant="h6" color={colors.purple} sx={{ m: "15px 0 5px 20px" }}>
+              Charts
+            </Typography>
+            <Item
+              title="Bar Chart"
+              to="/"
+              icon={<BarChartIcon/>}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Pie Chart"
+              to="/"
+              icon={<PieChartOutlineIcon/>}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Line Chart"
+              to="/"
+              icon={<TimelineIcon/>}
               selected={selected}
               setSelected={setSelected}
             />
           </Box>
         </Menu>
-      </Sidebar>
-    </Box>
+
+        {/* Spacer to push bottom items down */}
+        <Box sx={{ flexGrow: 1 }} />
+
+        {/* Bottom Menu for Settings */}
+        <Menu iconShape="square">
+          <Divider />
+          <Box paddingLeft={isCollapsed ? undefined : "0%"}>
+            <Item
+              title="Settings"
+              to="/settings"
+              icon={<SettingsOutlinedIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+          </Box>
+        </Menu>
+      </Box>
+    </Sidebar>
   );
 };
 
