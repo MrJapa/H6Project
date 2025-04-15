@@ -9,10 +9,22 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_POST
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from rest_framework.response import Response
 
-class PostingsListView(generics.ListCreateAPIView):
-    queryset = Postings.objects.all()
-    serializer_class = PostingsSerializer
+class PostingsListView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        if user.role == "accountant" or user.role == "customer":
+            companies = user.companies.all()  # Get companies linked to the user
+            postings = Postings.objects.filter(company__in=companies)  # Filter postings by company
+        else:
+            postings = Postings.objects.all()  # Superusers can see all postings
+        serializer = PostingsSerializer(postings, many=True)
+        return Response(serializer.data)
 
 @require_POST
 def login_view(request):

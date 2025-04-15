@@ -6,7 +6,10 @@ import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 
 const fetchPostings = async () => {
-  const response = await fetch('http://localhost:8000/api/postings/');
+  const response = await fetch('http://localhost:8000/api/postings/', {
+    method: 'GET',
+    credentials: 'include', // Include cookies in the request
+  });
   const data = await response.json();
   return data.map(item => ({
     ...item,
