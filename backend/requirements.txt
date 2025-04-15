@@ -3,3 +3,5 @@ djangorestframework
 pandas
 scikit-learn
 django-cors-headers
+numpy
+scipy
