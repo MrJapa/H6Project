@@ -23,7 +23,10 @@ class PostingsListView(APIView):
             postings = Postings.objects.filter(company__in=companies)  # Filter postings by company
         else:
             postings = Postings.objects.all()  # Superusers can see all postings
+        
         serializer = PostingsSerializer(postings, many=True)
+
+
         return Response(serializer.data)
 
 @require_POST
