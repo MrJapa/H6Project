@@ -1,18 +1,26 @@
-import { useState, useEffect } from "react";
+// frontend/src/scenes/global/Sidebar.jsx
+import React, { useState, useEffect, useContext } from "react";
 import { Sidebar, Menu, MenuItem } from "react-pro-sidebar";
-import { Box, IconButton, Typography, useTheme, Select, Divider, MenuItem as MuiMenuItem } from "@mui/material";
+import {
+  Box,
+  IconButton,
+  Typography,
+  useTheme,
+  Select,
+  Divider,
+  MenuItem as MuiMenuItem,
+} from "@mui/material";
 import { styled } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
-import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
+import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
+import PostAddIcon from "@mui/icons-material/PostAdd";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
-import BarChartIcon from '@mui/icons-material/BarChart';
-import PieChartOutlineIcon from '@mui/icons-material/PieChartOutline';
-import TimelineIcon from '@mui/icons-material/Timeline';
-import PostAddIcon from '@mui/icons-material/PostAdd';
+import LogoutIcon from "@mui/icons-material/Logout";
 
-// Create a styled version of MenuItem that uses your theme's tokens for hover and active states.
+import { CompanyContext } from "../../state/CompanyContext";
+
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   "&& a.ps-menu-button": {
     transition: "background-color 0.3s",
@@ -27,20 +35,17 @@ const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   },
 }));
 
-// Item component: adds an "active" class if the item is selected.
 const Item = ({ title, to, icon, selected, setSelected }) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const navigate = useNavigate();
-  
+
   return (
     <StyledMenuItem
       className={selected === title ? "active" : ""}
-      style={{
-        color: colors.white,
-      }}
+      style={{ color: colors.white }}
       onClick={() => {
-        setSelected(title);
+        setSelected?.(title);
         navigate(to);
       }}
       icon={icon}
@@ -51,62 +56,104 @@ const Item = ({ title, to, icon, selected, setSelected }) => {
   );
 };
 
-const CustomSidebar = () => {
+function getCookie(name) {
+  const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
+  return match ? decodeURIComponent(match[2]) : null;
+}
+
+
+const CustomSideBar = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const { selectedCompany, setSelectedCompany } = useContext(CompanyContext);
+
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [selected, setSelected] = useState("Dashboard");
-  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [companies, setCompanies] = useState([]);
-  const [selectedCompanies, setSelectedCompanies] = useState([]);
 
-  // Fetch user details on component mount
+  const navigate = useNavigate();
+
   useEffect(() => {
     fetch("http://localhost:8000/api/user-details/", {
       method: "GET",
       credentials: "include",
     })
-      .then((response) => response.json())
+      .then((res) => res.json())
       .then((data) => {
         if (data.isAuthenticated && data.user) {
-          const { username, email, role, companies } = data.user;
-          setEmail(email);
+          const { username, role, companies } = data.user;
           setUsername(username);
           setRole(role);
           setCompanies(companies || []);
-          if (role === "accountant") {
-            setSelectedCompanies(
-              (companies || []).map((company) =>
-                typeof company === "string" ? company : company.id
-              )
-            );
+
+          // if customer (only one), auto‑select
+          if (role === "customer" && companies.length === 1) {
+            setSelectedCompany(companies[0].id.toString());
+          }
+          // if accountant/superuser and no previous selection, default to first
+          if (
+            (role === "accountant" || role === "superuser") &&
+            !selectedCompany &&
+            companies.length > 0
+          ) {
+            setSelectedCompany(companies[0].id.toString());
           }
         }
       })
-      .catch((error) => console.error("Error fetching user details:", error));
+      .catch(console.error);
   }, []);
 
-  const handleCompanyChange = (event) => {
-    setSelectedCompanies(event.target.value);
+  const handleCompanyChange = (e) => {
+    setSelectedCompany(e.target.value);
+  };
+
+  const handleLogout = async () => {
+    // 1) Ensure we have a fresh CSRF cookie
+    await fetch("http://localhost:8000/api/csrf/", {
+      method: "GET",
+      credentials: "include",
+    });
+
+    // 2) Read it from the cookie
+    const csrfToken = getCookie("csrftoken");
+
+    // 3) Send logout with header
+    await fetch("http://localhost:8000/api/logout/", {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "X-CSRFToken": csrfToken,
+      },
+    });
+
+    // 4) Clear client auth and go to login
+    localStorage.removeItem("authToken");
+    navigate("/");
+    window.location.reload();
   };
 
   return (
-    <Sidebar collapsed={isCollapsed} style={{ height: "100vh" }} backgroundColor={colors.primary}>
+    <Sidebar
+      collapsed={isCollapsed}
+      style={{ height: "100vh" }}
+      backgroundColor={colors.primary}
+    >
       <Box display="flex" flexDirection="column" height="100%">
         <Menu iconShape="square">
-          {/* LOGO / Collapse Toggle */}
           <StyledMenuItem
             onClick={() => setIsCollapsed(!isCollapsed)}
             icon={isCollapsed ? <MenuOutlinedIcon /> : undefined}
-            style={{
-              margin: "10px 0 20px 0",
-              color: colors.purple,
-            }}
+            style={{ margin: "10px 0 20px 0", color: colors.purple }}
           >
             {!isCollapsed && (
-              <Box display="flex" justifyContent="space-between" alignItems="center" ml="15px">
+              <Box
+                display="flex"
+                justifyContent="space-between"
+                alignItems="center"
+                ml="15px"
+              >
                 <Typography variant="h3" color={colors.purple}>
                   SafeLedger
                 </Typography>
@@ -118,47 +165,48 @@ const CustomSidebar = () => {
           </StyledMenuItem>
 
           {!isCollapsed && (
-            <Box textAlign="center">
-              {role === "accountant" ? (
+            <Box textAlign="center" mb="10px">
+              {(role === "accountant" || role === "superuser") && (
                 <Select
-                  multiple
-                  value={selectedCompanies}
+                  value={selectedCompany}
                   onChange={handleCompanyChange}
                   displayEmpty
                   sx={{
                     backgroundColor: colors.white,
                     color: colors.text,
-                    marginBottom: "10px",
+                    width: "100%",
                   }}
                 >
-                  {companies.map((company, index) => (
-                    <MuiMenuItem
-                      key={index}
-                      value={typeof company === "string" ? company : company.id}
-                    >
-                      {typeof company === "string" ? company : company.companyName}
+                  {companies.map((c) => (
+                    <MuiMenuItem key={c.id} value={c.id.toString()}>
+                      {c.companyName}
                     </MuiMenuItem>
                   ))}
                 </Select>
-              ) : (
+              )}
+
+              {(role === "customer" || companies.length === 1) && (
                 <Typography
-                  variant="h2"
+                  variant="h5"
                   color={colors.text}
-                  fontWeight="bold"
-                  sx={{ m: "10px 0 0 0" }}
+                  sx={{ mt: 1 }}
                 >
-                  {companies.length > 0 ? (typeof companies[0] === "string" ? companies[0] : companies[0].companyName) : "No Company"}
+                  {companies[0]?.companyName || "No Company"}
                 </Typography>
               )}
 
-              <Typography variant="h5" color={colors.text} marginBottom="10px">
+              <Typography variant="subtitle2" color={colors.text} mt="5px">
                 {username}
               </Typography>
             </Box>
           )}
 
           <Box paddingLeft={isCollapsed ? undefined : "0%"}>
-            <Typography variant="h6" color={colors.purple} sx={{ m: "15px 0 5px 20px" }}>
+            <Typography
+              variant="h6"
+              color={colors.purple}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
               Home
             </Typography>
             <Item
@@ -169,7 +217,11 @@ const CustomSidebar = () => {
               setSelected={setSelected}
             />
 
-            <Typography variant="h6" color={colors.purple} sx={{ m: "15px 0 5px 20px" }}>
+            <Typography
+              variant="h6"
+              color={colors.purple}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
               Data
             </Typography>
             <Item
@@ -179,37 +231,11 @@ const CustomSidebar = () => {
               selected={selected}
               setSelected={setSelected}
             />
-            <Typography variant="h6" color={colors.purple} sx={{ m: "15px 0 5px 20px" }}>
-              Charts
-            </Typography>
-            <Item
-              title="Bar Chart"
-              to="/"
-              icon={<BarChartIcon/>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Pie Chart"
-              to="/"
-              icon={<PieChartOutlineIcon/>}
-              selected={selected}
-              setSelected={setSelected}
-            />
-            <Item
-              title="Line Chart"
-              to="/"
-              icon={<TimelineIcon/>}
-              selected={selected}
-              setSelected={setSelected}
-            />
           </Box>
         </Menu>
 
-        {/* Spacer to push bottom items down */}
         <Box sx={{ flexGrow: 1 }} />
 
-        {/* Bottom Menu for Settings */}
         <Menu iconShape="square">
           <Divider />
           <Box paddingLeft={isCollapsed ? undefined : "0%"}>
@@ -221,10 +247,20 @@ const CustomSidebar = () => {
               setSelected={setSelected}
             />
           </Box>
+          <Box paddingLeft={isCollapsed ? undefined : "0%"}>
+
+          <StyledMenuItem
+              onClick={handleLogout}
+              style={{ color: colors.white }}
+              icon={<LogoutIcon />}
+            >
+              <Typography>Logout</Typography>
+            </StyledMenuItem>
+          </Box>
         </Menu>
       </Box>
     </Sidebar>
   );
 };
 
-export default CustomSidebar;
+export default CustomSideBar;

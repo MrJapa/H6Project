@@ -41,8 +41,7 @@ INSTALLED_APPS = [
     'SafeLedger',
     'rest_framework',
     'corsheaders',
-    
-    
+    'django_extensions',
 ]
 
 REST_FRAMEWORK = {
