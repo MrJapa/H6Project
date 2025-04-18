@@ -1,6 +1,6 @@
 // frontend/src/App.js
 import React, { useState, useEffect } from "react";
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -13,6 +13,7 @@ import Dashboard from "./scenes/dashboard";
 import Form from "./scenes/form";
 import Postings from "./scenes/postings";
 import Login from "./scenes/login";
+import CompanyForm from "./scenes/company";
 
 const queryClient = new QueryClient();
 
@@ -45,6 +46,8 @@ function App() {
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/postings" element={<Postings />} />
                     <Route path="/form" element={<Form />} />
+                    <Route path="/login" element={<Login />} />
+                    <Route path="/companies/new" element={<CompanyForm />} />
                   </Routes>
                 </main>
               </div>

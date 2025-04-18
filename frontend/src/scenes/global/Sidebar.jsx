@@ -18,6 +18,11 @@ import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PostAddIcon from "@mui/icons-material/PostAdd";
 import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutIcon from "@mui/icons-material/Logout";
+import TimelineIcon from '@mui/icons-material/Timeline';
+import BarChartIcon from '@mui/icons-material/BarChart';
+import PieChartIcon from '@mui/icons-material/PieChart';
+import PersonIcon from '@mui/icons-material/Person';
+import BusinessIcon from '@mui/icons-material/Business';
 
 import { CompanyContext } from "../../state/CompanyContext";
 
@@ -231,6 +236,59 @@ const CustomSideBar = () => {
               selected={selected}
               setSelected={setSelected}
             />
+
+            <Typography
+              variant="h6"
+              color={colors.purple}
+              sx={{ m: "15px 0 5px 20px" }}
+            >
+              Graphs
+            </Typography>
+            <Item
+              title="Line Chart"
+              to="/postings"
+              icon={<TimelineIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Bar Chart"
+              to="/postings"
+              icon={<BarChartIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            <Item
+              title="Pie Chart"
+              to="/postings"
+              icon={<PieChartIcon />}
+              selected={selected}
+              setSelected={setSelected}
+            />
+            {(role === "accountant" || role === "superuser") && (
+              <>
+              <Typography
+                variant="h6"
+                color={colors.purple}
+                sx={{ m: "15px 0 5px 20px" }}>
+              Administration
+              </Typography>
+              <Item
+              title="Company Management"
+              to="/companies/new"
+              icon={<BusinessIcon />}
+              selected={selected}
+              setSelected={setSelected}
+              />
+              <Item
+              title="Customer Management"
+              to="/user-management"
+              icon={<PersonIcon />}
+              selected={selected}
+              setSelected={setSelected}
+              />
+              </>
+            )}
           </Box>
         </Menu>
 
