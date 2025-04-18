@@ -282,7 +282,7 @@ const CustomSideBar = () => {
               />
               <Item
               title="Customer Management"
-              to="/user-management"
+              to="/customers/new"
               icon={<PersonIcon />}
               selected={selected}
               setSelected={setSelected}

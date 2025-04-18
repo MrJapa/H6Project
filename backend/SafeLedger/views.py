@@ -11,8 +11,8 @@ from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.views.decorators.http import require_POST
 
-from .models import Postings, Company
-from .serializers import PostingsSerializer, CompanySerializer
+from .models import Postings, Company, User
+from .serializers import PostingsSerializer, CompanySerializer, CustomerSerializer
 
 class PostingsListView(APIView):
     permission_classes = [IsAuthenticated]
@@ -37,6 +37,21 @@ class CompanyListCreateView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
+
+class CustomerListCreateView(generics.ListCreateAPIView):
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "accountant":
+            return User.objects.filter(
+                role="customer", companies__in=user.companies.all()
+            )
+        if user.role == "superuser":
+            return User.objects.filter(role="customer")
+        return User.objects.none()
+    
 
 
 @require_POST
