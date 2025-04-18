@@ -6,3 +6,13 @@ class PostingsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Postings
         fields = '__all__'
+
+class CompanySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Company
+        fields = ['id', 'companyName']
+
+    def validate_companyName(self, value):
+        if Company.objects.filter(companyName=value).exists():
+            raise serializers.ValidationError("Company with this name already exists.")
+        return value

@@ -6,7 +6,7 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class Company(models.Model):
     #id = models.IntegerField(primary_key=True) //Django automatically creates an id field as primary key
-    companyName = models.CharField(max_length=100)
+    companyName = models.CharField(max_length=225, unique=True)
 
     def __str__(self):
         return self.companyName

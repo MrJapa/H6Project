@@ -10,4 +10,5 @@ urlpatterns = [
     path('whoami/', views.whoami_view, name='whoami'),  # URL for the whoami view
     path('csrf/', views.set_csrf_cookie, name='set_csrf_cookie'),
     path('user-details/', views.get_user_details, name='user-details'),  # URL for the user details view
+    path('companies/', views.CompanyListCreateView.as_view(), name='companies-list'),  # URL for the companies list view
 ]

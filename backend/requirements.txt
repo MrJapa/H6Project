@@ -5,3 +5,4 @@ scikit-learn
 django-cors-headers
 numpy
 scipy
+django_extensions
