@@ -7,6 +7,7 @@ import {
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
+import { fieldStyles } from "../../utils/styles";
 
 // helper to read cookie
 function getCookie(name) {
@@ -75,41 +76,48 @@ const CompanyForm = () => {
   return (
     <Box m="20px">
       <Header title="NEW COMPANY" subtitle="Add a new company" />
-      <Box
-        component="form"
-        onSubmit={handleSubmit}
-        sx={{ mt: 2, width: 400 }}
-      >
-        <TextField
-          fullWidth
-          label="Company Name"
-          value={companyName}
-          onChange={(e) => setCompanyName(e.target.value)}
-          margin="normal"
-        />
-        <Button
-          type="submit"
-          variant="contained"
-          sx={{ mt: 2 }}
-          disabled={mutation.isLoading}
-          style={{
-            backgroundColor: colors.primary[500],
-            color: colors.grey[100],
-          }}
-        >
-          {mutation.isLoading ? "Creating…" : "Create Company"}
-        </Button>
-        {successMessage && (
-          <Box mt={2} color="green">
-            {successMessage}
+        <Box display="flex" justifyContent="center" mt={2}>
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 600 }}>
+            <Box display="flex" gap={2} mb={2}>
+            <Box
+              component="form"
+              onSubmit={handleSubmit}
+              sx={{ mt: 2, width: 400 }}
+            >
+              <TextField
+                fullWidth
+                label="Company Name"
+                value={companyName}
+                onChange={(e) => setCompanyName(e.target.value)}
+                margin="normal"
+                sx={fieldStyles(colors)}
+              />
+              <Button
+                type="submit"
+                variant="contained"
+                sx={{ mt: 2 }}
+                disabled={mutation.isLoading}
+                style={{
+                  backgroundColor: colors.primary[500],
+                  color: colors.grey[100],
+                }}
+              >
+                {mutation.isLoading ? "Creating…" : "Create Company"}
+              </Button>
+              {successMessage && (
+                <Box mt={2} color="green">
+                  {successMessage}
+                </Box>
+              )}
+              {errorMessage && (
+                <Box mt={2} color="red">
+                  {errorMessage}
+                </Box>
+              )}
+            </Box>
           </Box>
-        )}
-        {errorMessage && (
-          <Box mt={2} color="red">
-            {errorMessage}
-          </Box>
-        )}
-      </Box>
+        </Box>
+        </Box>
     </Box>
   );
 };

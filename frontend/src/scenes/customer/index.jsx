@@ -13,6 +13,7 @@ import {
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fieldStyles } from "../../utils/styles";
 
 // read a named cookie (for CSRF)
 function getCookie(name) {
@@ -30,6 +31,8 @@ export default function CustomerForm() {
   const [password, setPassword] = useState("");
   const [companyId, setCompanyId] = useState("");
   const queryClient = useQueryClient();
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   // fetch companies for the dropdown
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
@@ -52,7 +55,14 @@ export default function CustomerForm() {
 
   // mutation to POST new customer
   const mutation = useMutation({
-    mutationFn: async ({firstName, lastName, username, email, password, companyId }) => {
+    mutationFn: async ({
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
+      companyId,
+    }) => {
       const csrfToken = getCookie("csrftoken");
       const res = await fetch("http://localhost:8000/api/customers/", {
         method: "POST",
@@ -91,10 +101,12 @@ export default function CustomerForm() {
       setEmail("");
       setPassword("");
       setCompanyId("");
-      alert("Customer created!");
+      setSuccessMessage("Customer created successfully!");
+      setTimeout(() => setSuccessMessage(""), 5000); // Clear message after 5 seconds
     },
     onError: (error) => {
-      alert(error.message);
+      setErrorMessage(error.message || "Failed to create customer");
+      setTimeout(() => setErrorMessage(""), 5000); // Clear message after 5 seconds
     },
   });
 
@@ -104,74 +116,91 @@ export default function CustomerForm() {
       alert("All fields are required.");
       return;
     }
-    mutation.mutate({firstName, lastName, username, email, password, companyId });
+    mutation.mutate({
+      firstName,
+      lastName,
+      username,
+      email,
+      password,
+      companyId,
+    });
   };
 
   return (
     <Box m="20px">
-        <Header title="NEW CUSTOMER" subtitle="Create a new customer"/>
-        <Box display="flex" justifyContent="center" mt={2}>
-            <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 600 }}>
-                <Box display="flex" gap={2} mb={2}>
-                    <TextField
-                        label="First Name"
-                        value={firstName}
-                        onChange={(e) => setFirstName(e.target.value)}
-                        fullWidth
-                    />
-                    <TextField
-                        label="Last Name"
-                        value={lastName}
-                        onChange={(e) => setLastName(e.target.value)}
-                        fullWidth
-                    />
-                </Box>
-                <Box mb={2}>
-                    <TextField
-                        label="Username"
-                        value={username}
-                        onChange={(e) => setUsername(e.target.value)}
-                        fullWidth
-                    />
-                </Box>
-                <Box mb={2}>
-                    <TextField
-                        label="Email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        fullWidth
-                    />
-                </Box>
-                <Box mb={2}>
-                    <TextField
-                        label="Password"
-                        type="password"
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        fullWidth
-                    />
-                </Box>
-                <Box mb={2}>
-                    <FormControl fullWidth>
-                        <InputLabel>Company</InputLabel>
-                        <Select
-                            value={companyId}
-                            onChange={(e) => setCompanyId(e.target.value)}
-                            label="Company"
-                        >
-                            {companies.map((c) => (
-                                <MenuItem key={c.id} value={c.id}>
-                                    {c.companyName}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
-                </Box>
-                <Button
+      <Header title="NEW CUSTOMER" subtitle="Create a new customer" />
+      <Box display="flex" justifyContent="center" mt={2}>
+        <Box
+          component="form"
+          onSubmit={handleSubmit}
+          sx={{ width: "100%", maxWidth: 600 }}
+        >
+          <Box display="flex" gap={2} mb={2}>
+            <TextField
+              label="First Name"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
+              fullWidth
+              sx={fieldStyles(colors)}
+            />
+            <TextField
+              label="Last Name"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
+              fullWidth
+              sx={fieldStyles(colors)}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Username"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              fullWidth
+              sx={fieldStyles(colors)}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              fullWidth
+              sx={fieldStyles(colors)}
+            />
+          </Box>
+          <Box mb={2}>
+            <TextField
+              label="Password"
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              fullWidth
+              sx={fieldStyles(colors)}
+            />
+          </Box>
+          <Box mb={2}>
+            <FormControl fullWidth
+            sx={fieldStyles(colors)}
+            >
+              <InputLabel>Company</InputLabel>
+              <Select
+                value={companyId}
+                onChange={(e) => setCompanyId(e.target.value)}
+                label="Company"
+              >
+                {companies.map((c) => (
+                  <MenuItem key={c.id} value={c.id}>
+                    {c.companyName}
+                  </MenuItem>
+                ))}
+              </Select>
+            </FormControl>
+          </Box>
+          <Button
             type="submit"
             variant="contained"
-            fullWidth
             disabled={mutation.isLoading}
             sx={{ mt: 1 }}
             style={{
@@ -181,8 +210,18 @@ export default function CustomerForm() {
           >
             {mutation.isLoading ? "Creating…" : "Create Customer"}
           </Button>
+          {successMessage && (
+            <Box mt={2} color="green">
+              {successMessage}
             </Box>
+          )}
+          {errorMessage && (
+            <Box mt={2} color="red">
+              {errorMessage}
+            </Box>
+          )}
         </Box>
+      </Box>
     </Box>
   );
 }

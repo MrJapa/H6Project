@@ -17,6 +17,7 @@ import {
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fieldStyles } from "../../utils/styles";
 
 // read a named cookie (for CSRF)
 function getCookie(name) {
@@ -146,12 +147,14 @@ export default function AccountantForm() {
               label="First Name"
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
+              sx={fieldStyles(colors)}
             />
             <TextField
               fullWidth
               label="Last Name"
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
+              sx={fieldStyles(colors)}
             />
           </Box>
 
@@ -161,6 +164,7 @@ export default function AccountantForm() {
               label="Username"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
+              sx={fieldStyles(colors)}
             />
           </Box>
 
@@ -171,6 +175,7 @@ export default function AccountantForm() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              sx={fieldStyles(colors)}
             />
           </Box>
 
@@ -181,12 +186,15 @@ export default function AccountantForm() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
+              sx={fieldStyles(colors)}
             />
           </Box>
 
           <Box mb={2}>
-            <FormControl fullWidth>
-              <InputLabel>Companies</InputLabel>
+            <FormControl fullWidth
+            sx={fieldStyles(colors)}
+            >
+              <InputLabel sx={{color: colors.blue, "&.Mui-focused": {color: colors.blue}}}>Companies</InputLabel>
               <Select
                 multiple
                 value={companyIds}
@@ -198,6 +206,7 @@ export default function AccountantForm() {
                     .map((c) => c.companyName)
                     .join(", ")
                 }
+                
               >
                 {companies.map((c) => (
                   <MenuItem key={c.id} value={c.id}>
