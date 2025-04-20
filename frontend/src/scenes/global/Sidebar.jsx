@@ -13,6 +13,7 @@ import {
 import { styled } from "@mui/material/styles";
 import { Link, useNavigate } from "react-router-dom";
 import { tokens } from "../../theme";
+import { CompanyContext } from "../../state/CompanyContext";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
 import HomeOutlinedIcon from "@mui/icons-material/HomeOutlined";
 import PostAddIcon from "@mui/icons-material/PostAdd";
@@ -24,7 +25,6 @@ import PieChartIcon from '@mui/icons-material/PieChart';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessIcon from '@mui/icons-material/Business';
 
-import { CompanyContext } from "../../state/CompanyContext";
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
   "&& a.ps-menu-button": {
@@ -288,6 +288,15 @@ const CustomSideBar = () => {
               setSelected={setSelected}
               />
               </>
+            )}
+            {(role === "superuser") && (
+              <Item
+                title="Accountant Management"
+                to="/accountants/new"
+                icon={<PersonIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
             )}
           </Box>
         </Menu>

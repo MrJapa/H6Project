@@ -19,13 +19,11 @@ class PostingsListView(APIView):
 
     def get(self, request):
         user = request.user
-        # base queryset depending on role
         if user.role in ("accountant", "customer"):
             qs = Postings.objects.filter(company__in=user.companies.all())
         else:
             qs = Postings.objects.all()
 
-        # optional filter by query‑param
         company_id = request.query_params.get("company")
         if company_id:
             qs = qs.filter(company_id=company_id)
@@ -52,7 +50,15 @@ class CustomerListCreateView(generics.ListCreateAPIView):
             return User.objects.filter(role="customer")
         return User.objects.none()
     
+class AccountantListCreateView(generics.ListCreateAPIView):
+    serializer_class = CustomerSerializer
+    permission_classes = [IsAuthenticated]
 
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "superuser":
+            return User.objects.filter(role="accountant")
+        return User.objects.filter(id=user.id, role="accountant")
 
 @require_POST
 def login_view(request):

@@ -15,6 +15,7 @@ import Postings from "./scenes/postings";
 import Login from "./scenes/login";
 import CompanyForm from "./scenes/company";
 import CustomerForm from "./scenes/customer";
+import AccountantForm from "./scenes/accountant";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ function App() {
                     <Route path="/login" element={<Login />} />
                     <Route path="/companies/new" element={<CompanyForm />} />
                     <Route path="/customers/new" element={<CustomerForm />} />
+                    <Route path="/accountants/new" element={<AccountantForm />} />
                   </Routes>
                 </main>
               </div>
