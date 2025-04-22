@@ -4,6 +4,7 @@ from . import views
 
 urlpatterns = [
     path('postings/', views.PostingsListView.as_view(), name='postings-list'),  # URL for the postings list view
+    path('postings/<int:pk>/', views.PostingsDetailView.as_view(), name='postings-detail'),  # URL for the postings detail view
     path('login/', views.login_view, name='login'),  # URL for the login view
     path('logout/', views.logout_view, name='logout'),  # URL for the logout view
     path('session/', views.session_view, name='session'),  # URL for the session view

@@ -19,7 +19,7 @@ class PostingsSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        posting = Postings.object.create(**validated_data)
+        posting = Postings.objects.create(**validated_data)
 
         data = {
             'company_id': posting.company.id,

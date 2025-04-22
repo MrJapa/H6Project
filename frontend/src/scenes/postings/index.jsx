@@ -2,6 +2,11 @@
 import React, { useState, useEffect, useContext } from "react";
 import {
   Box,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  Button,
   Typography,
   IconButton,
   InputBase,
@@ -19,6 +24,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CompanyContext } from "../../state/CompanyContext";
 import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
+import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
 const fetchPostings = async (companyId) => {
   const url = new URL("http://localhost:8000/api/postings/");
@@ -31,6 +37,12 @@ const fetchPostings = async (companyId) => {
   return data.map((item) => ({ ...item, id: item.id }));
 };
 
+const getCookie = (name) => {
+  const match = document.cookie.match(new RegExp(
+    `(^| )${name}=([^;]+)`
+  ));
+  return match ? match[2] : null;
+};
 
 const Postings = () => {
   const theme = useTheme();
@@ -46,10 +58,29 @@ const Postings = () => {
   
   const [searchText, setSearchText] = useState("");
   const [filteredRows, setFilteredRows] = useState(rows);
-  
   const [addOpen, setAddOpen] = useState(false);
-
   const [selectionModel, setSelectionModel] = useState([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+
+  const handleDelete = async () => {
+    const csrfToken = getCookie("csrftoken");
+    for (const id of selectionModel) {
+      await fetch(`http://localhost:8000/api/postings/${id}/`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrfToken,
+        },
+      });
+    }
+    setDeleteOpen(false);
+    setSelectionModel([]);
+    await refetch();
+  };
+
+
+
 
   useEffect(() => {
     setFilteredRows(
@@ -164,6 +195,10 @@ const Postings = () => {
         </Box>
 
         <Box display="flex" alignItems="center">
+          {/* Delete */}
+          <IconButton onClick={() => setDeleteOpen(true)} disabled={!selectionModel.length} sx={{ p: 1 }} title="Delete Selected">
+            <DeleteOutlineIcon />
+          </IconButton>
           {/* Export */}
           <IconButton onClick={exportSelected} sx={{ p: 1 }} title="Export Selected">
             <GetAppIcon />
@@ -183,9 +218,9 @@ const Postings = () => {
         open={addOpen}
         selectedCompany={selectedCompany}
         onClose={() => setAddOpen(false)}
-        onSuccess={() => {
-          setAddOpen(false);
+        onCreated = {(newPosting) => {
           refetch();
+          setAddOpen(false);
         }}
       />
 
@@ -211,6 +246,23 @@ const Postings = () => {
           }}
         />
       </Box>
+      <Dialog
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        maxWidth="xs"
+        fullWidth
+      >
+        <DialogTitle>Confirm Deletion</DialogTitle>
+        <DialogContent>
+          <Typography>
+            Are you sure you want to delete {selectionModel.length} rows? This action cannot be undone.
+          </Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteOpen(false)}>Cancel</Button>
+          <Button color="error" onClick={handleDelete}>Delete</Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };

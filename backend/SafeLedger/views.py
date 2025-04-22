@@ -14,22 +14,32 @@ from django.views.decorators.http import require_POST
 from .models import Postings, Company, User
 from .serializers import PostingsSerializer, CompanySerializer, CustomerSerializer
 
-class PostingsListView(APIView):
+class PostingsListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = PostingsSerializer
 
-    def get(self, request):
-        user = request.user
+    def get_queryset(self):
+        user = self.request.user
         if user.role in ("accountant", "customer"):
             qs = Postings.objects.filter(company__in=user.companies.all())
         else:
             qs = Postings.objects.all()
 
-        company_id = request.query_params.get("company")
+        company_id = self.request.query_params.get("company")
         if company_id:
             qs = qs.filter(company_id=company_id)
+        return qs
 
-        serializer = PostingsSerializer(qs, many=True)
-        return Response(serializer.data)
+class PostingsDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Postings.objects.all()
+    serializer_class = PostingsSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role in ("accountant", "customer"):
+            return Postings.objects.filter(company__in=user.companies.all())
+        return super().get_queryset()
 
 class CompanyListCreateView(generics.ListCreateAPIView):
     queryset = Company.objects.all()
