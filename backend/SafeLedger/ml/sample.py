@@ -1,18 +1,47 @@
 from ml_model import evaluate_posting
 
-# Sample posting that is within the normal range.
-sample_normal = {
-    "accountHandleNumber": 1001,
-    "postAmount": 1500,
-    "postDescription": "Equus regninger"  # Ignored
-}
+samples = [
 
-# Sample posting that is an outlier.
-sample_anomaly = {
-    "accountHandleNumber": 1001,
-    "postAmount": 15159923,
-    "postDescription": "Faktura"  # Ignored
-}
+    {
+        "company_id": 16,
+        "accountHandleNumber": 1001,
+        "postAmount": -50000,
+        "postCurrency": "DKK",
+        "postDate": "2022-01-01",
+        "postDescription": "Equus regninger (normal)"
+    },
+    {
+        "company_id": 16,
+        "accountHandleNumber": 1001,
+        "postAmount": -5000000,
+        "postCurrency": "DKK",
+        "postDate": "2022-01-01",
+        "postDescription": "Equus regninger (anomaly)"
+    },
 
-print("Normal posting evaluation (expected False):", evaluate_posting(sample_normal))
-print("Anomalous posting evaluation (expected True):", evaluate_posting(sample_anomaly))
+    {
+        "company_id": 7,
+        "accountHandleNumber": 1001,
+        "postAmount": -3000000,
+        "postCurrency": "DKK",
+        "postDate": "2022-01-01",
+        "postDescription": "Faktura (normal)"
+    },
+    {
+        "company_id": 7,
+        "accountHandleNumber": 1001,
+        "postAmount": -100000,
+        "postCurrency": "DKK",
+        "postDate": "2022-01-01",
+        "postDescription": "Faktura (anomaly)"
+    },
+]
+
+if __name__ == "__main__":
+    for p in samples:
+        try:
+            is_anom = evaluate_posting(p)
+            status = "SUSPICIOUS" if is_anom else "normal"
+            print(f"Company {p['company_id']}: {p['postDescription']} -> {status}")
+        except Exception as e:
+            print(f"Error evaluating posting for company {p['company_id']}: {e}")

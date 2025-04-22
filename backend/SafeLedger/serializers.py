@@ -1,11 +1,35 @@
 from rest_framework import serializers
 from .models import User, Postings, Company
+from .ml.ml_model import evaluate_posting
 
 class PostingsSerializer(serializers.ModelSerializer):
     postDate = serializers.DateField(format="%d-%m-%Y")
+    is_suspicious = serializers.BooleanField(read_only=True)
     class Meta:
         model = Postings
-        fields = '__all__'
+        fields = [
+            'id',
+            'company',
+            'accountHandleNumber',
+            'postDate',
+            'postAmount',
+            'postCurrency',
+            'postDescription',
+            'is_suspicious',
+        ]
+
+    def create(self, validated_data):
+        posting = Postings.object.create(**validated_data)
+
+        data = {
+            'company_id': posting.company.id,
+            'accountHandleNumber': posting.accountHandleNumber,
+            'postAmount': float(posting.postAmount),
+        }
+        posting.is_suspicious = evaluate_posting(data)
+
+        posting.save()
+        return posting
 
 class CompanySerializer(serializers.ModelSerializer):
     class Meta:

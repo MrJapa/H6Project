@@ -1,39 +1,31 @@
+# train_model.py
 import pandas as pd
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
 import pickle
+import os
 
-# Load the CSV data using a semicolon as the delimiter and latin1 as the encoding (UTF-8 does not work)
-data = pd.read_csv('backend\\SafeLedger\\ml\\posting.csv', sep=';', encoding='latin1')
-
-print("Raw Data:")
-print(data)
-
-# Convert 'postDate' to datetime format.
+data = pd.read_csv('backend/SafeLedger/ml/posting.csv', sep=';', encoding='latin1')
 data['postDate'] = pd.to_datetime(data['postDate'], format='%d-%m-%Y', errors='coerce')
 
+scalers = {}
+models  = {}
 
-num_features = data[['accountHandleNumber', 'postAmount']]
+for cid, group in data.groupby('company_id'):
+    X = group[['accountHandleNumber', 'postAmount']]
+    scaler = StandardScaler().fit(X)
+    Xs = scaler.transform(X)
 
-# Scale the numeric features.
-scaler = StandardScaler()
-num_scaled = scaler.fit_transform(num_features)
+    iso = IsolationForest(contamination=0.05, random_state=42).fit(Xs)
 
-# Train Isolation Forest with contamination parameter.
-iso_forest = IsolationForest(contamination=0.05, random_state=42)
-iso_forest.fit(num_scaled)
+    scalers[cid] = scaler
+    models[cid]  = iso
 
-# Calculate the anomaly score and predictions.
-data['anomaly_score'] = iso_forest.decision_function(num_scaled)
-data['is_suspicious'] = iso_forest.predict(num_scaled) == -1
+# Save the two dicts
+os.makedirs('models', exist_ok=True)
+with open('backend/SafeLedger/ml/models/scalers.pkl', 'wb') as f:
+    pickle.dump(scalers, f)
+with open('backend/SafeLedger/ml/models/iso_forests.pkl', 'wb') as f:
+    pickle.dump(models, f)
 
-print("\nResults:")
-print(data[['id', 'accountHandleNumber', 'postAmount', 'anomaly_score', 'is_suspicious']])
-
-# Save the scaler and model artifacts.
-with open('scaler.pkl', 'wb') as f:
-    pickle.dump(scaler, f)
-with open('isolation_forest.pkl', 'wb') as f:
-    pickle.dump(iso_forest, f)
-
-print("\nTraining complete and model artifacts saved.")
+print("Trained and saved per-company models.")

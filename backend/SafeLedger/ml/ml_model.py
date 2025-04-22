@@ -1,30 +1,29 @@
-import pickle
+# ml_model.py
+import pickle, os
 import numpy as np
-import os
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
-
-scaler_path = os.path.join(current_dir, 'scaler.pkl')
-model_path = os.path.join(current_dir, 'isolation_forest.pkl')
-
-# Load the scaler and model
-with open(scaler_path, 'rb') as scaler_file:
-    scaler = pickle.load(scaler_file)
-
-with open(model_path, 'rb') as model_file:
-    iso_forest = pickle.load(model_file)
+# Load the dicts of scalers & models
+base = os.path.dirname(__file__)
+with open(os.path.join(base, 'models/scalers.pkl'), 'rb') as f:
+    scalers = pickle.load(f)
+with open(os.path.join(base, 'models/iso_forests.pkl'), 'rb') as f:
+    iso_forests = pickle.load(f)
 
 def evaluate_posting(posting_data):
+    """
+    posting_data must include 'company_id', 'accountHandleNumber', 'postAmount'.
+    Returns True if anomalous, False otherwise.
+    """
+    cid = posting_data['company_id']
+    if cid not in scalers:
+        # Fallback: no model for this company
+        raise ValueError(f"No anomaly model for company {cid}")
 
-    # 2D array from the numeric features.
-    features = np.array([[posting_data['accountHandleNumber'], posting_data['postAmount']]])
-    
-    # Scale the features using the pre-loaded scaler.
-    scaled_features = scaler.transform(features)
-    
-    # Get the prediction from the Isolation Forest model.
-    # The model returns -1 if the instance is considered an outlier.
-    prediction = iso_forest.predict(scaled_features)
-    
-    # Return True if predicted as an anomaly, False otherwise.
-    return prediction[0] == -1
+    scaler = scalers[cid]
+    iso    = iso_forests[cid]
+
+    features = np.array([[posting_data['accountHandleNumber'],
+                          posting_data['postAmount']]])
+    Xs = scaler.transform(features)
+    pred = iso.predict(Xs)
+    return pred[0] == -1
