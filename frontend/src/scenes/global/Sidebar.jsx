@@ -246,21 +246,21 @@ const CustomSideBar = () => {
             </Typography>
             <Item
               title="Line Chart"
-              to="/postings"
+              to="/linechart"
               icon={<TimelineIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Bar Chart"
-              to="/postings"
+              to="/barchart"
               icon={<BarChartIcon />}
               selected={selected}
               setSelected={setSelected}
             />
             <Item
               title="Pie Chart"
-              to="/postings"
+              to="/piechart"
               icon={<PieChartIcon />}
               selected={selected}
               setSelected={setSelected}
