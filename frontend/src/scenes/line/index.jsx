@@ -1,12 +1,15 @@
+//frontend/src/scenes/line/index.jsx
+import React from "react";
 import { Box } from "@mui/material";
-import Header from "../../components/Header";
+import LineChartComponent from "../../components/LineChart";
 
-const LineChart = () => {
-    return <Box m="20px">
-        <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="Line chart"/>
-        </Box>
+const LineChartScene = () => {
+  return (
+    <Box m="20px">
+      <h1>Postings Line Chart</h1>
+      <LineChartComponent />
     </Box>
-}
+  );
+};
 
-export default LineChart;
+export default LineChartScene;

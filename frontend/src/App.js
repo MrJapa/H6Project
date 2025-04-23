@@ -10,12 +10,14 @@ import Topbar from "./scenes/global/Topbar";
 import TopbarTheme from "./scenes/global/TopbarTheme";
 import CustomSideBar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
-import Form from "./scenes/form";
 import Postings from "./scenes/postings";
 import Login from "./scenes/login";
 import CompanyForm from "./scenes/company";
 import CustomerForm from "./scenes/customer";
 import AccountantForm from "./scenes/accountant";
+import BarChart from "./scenes/bar";
+import LineChart from "./scenes/line";
+import PieChart from "./scenes/pie";
 
 const queryClient = new QueryClient();
 
@@ -47,11 +49,14 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/postings" element={<Postings />} />
-                    <Route path="/form" element={<Form />} />
                     <Route path="/login" element={<Login />} />
                     <Route path="/companies/new" element={<CompanyForm />} />
                     <Route path="/customers/new" element={<CustomerForm />} />
                     <Route path="/accountants/new" element={<AccountantForm />} />
+                    <Route path="/barchart" element={<BarChart />} />
+                    <Route path="/linechart" element={<LineChart />} />
+                    <Route path="/piechart" element={<PieChart />} />
+                    <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </main>
               </div>
