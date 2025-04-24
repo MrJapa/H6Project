@@ -53,7 +53,7 @@ export default function AddPostingModal({ open, onClose, onCreated, selectedComp
         postDescription,
       };
       const csrfToken = getCookie("csrftoken");
-      const api = process.env.REACT_APP_API_URL;
+      const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
       const res = await fetch(`${api}/postings/`, {
         method: "POST",
         credentials: "include",

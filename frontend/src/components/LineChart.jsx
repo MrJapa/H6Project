@@ -15,7 +15,7 @@ import {
 
 // fetch postings for a given company
 const fetchPostings = async (companyId) => {
-  const api = process.env.REACT_APP_API_URL;
+  const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
   const url = new URL(`${api}/postings/`);
   if (companyId) url.searchParams.append('company', companyId);
   const res = await fetch(url.toString(), {

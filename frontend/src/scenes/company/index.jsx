@@ -22,7 +22,7 @@ const CompanyForm = () => {
   const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const api = process.env.REACT_APP_API_URL;
+  const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
   // on mount, grab CSRF cookie
   useEffect(() => {

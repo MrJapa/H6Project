@@ -26,7 +26,7 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
-const api = process.env.REACT_APP_API_URL;
+const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
 const fetchPostings = async (companyId) => {
   const url = new URL(`${api}/postings/`);

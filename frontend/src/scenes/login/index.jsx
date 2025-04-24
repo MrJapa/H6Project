@@ -26,7 +26,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const api = process.env.REACT_APP_API_URL;
+  const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
   // Helper function to get a cookie value by name (for CSRF protection)
   function getCookie(name) {
@@ -41,6 +41,7 @@ export default function Login() {
         }
       }
     }
+    console.log("Cookie value:", cookieValue); // Debugging line
     return cookieValue;
   }
 

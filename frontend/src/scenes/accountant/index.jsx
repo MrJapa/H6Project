@@ -37,7 +37,7 @@ export default function AccountantForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const queryClient = useQueryClient();
-  const api = process.env.REACT_APP_API_URL;
+  const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
   // fetch companies for multi-select
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],

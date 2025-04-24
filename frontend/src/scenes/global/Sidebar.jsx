@@ -78,7 +78,7 @@ const CustomSideBar = () => {
   const [role, setRole] = useState("");
   const [companies, setCompanies] = useState([]);
   const navigate = useNavigate();
-  const api = process.env.REACT_APP_API_URL;
+  const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
 
   useEffect(() => {
     fetch(`${api}/user-details/`, {

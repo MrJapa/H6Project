@@ -71,12 +71,14 @@ CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOWED_ORIGINS = [
     "https://japa.cc",
     "https://www.japa.cc",
+    "http://localhost:3000",
 ]
 
 # Trust these origins for CSRF protection
 CSRF_TRUSTED_ORIGINS = [
     "https://japa.cc",
     "https://www.japa.cc",
+    "http://localhost:3000",
 ]
 
 # Ensure cookies are only sent over HTTPS
