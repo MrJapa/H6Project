@@ -22,11 +22,11 @@ const CompanyForm = () => {
   const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-
+  const api = process.env.REACT_APP_API_URL;
 
   // on mount, grab CSRF cookie
   useEffect(() => {
-    fetch("http://localhost:8000/api/csrf/", {
+    fetch(`${api}/csrf/`, {
       method: "GET",
       credentials: "include",
     });
@@ -35,7 +35,7 @@ const CompanyForm = () => {
   // the actual POST call
   const createCompany = async ({ companyName }) => {
     const csrfToken = getCookie("csrftoken");
-    const res = await fetch("http://localhost:8000/api/companies/", {
+    const res = await fetch(`${api}/companies/`, {
       method: "POST",
       credentials: "include",
       headers: {

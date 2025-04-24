@@ -33,12 +33,13 @@ export default function CustomerForm() {
   const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const api = process.env.REACT_APP_API_URL;
 
   // fetch companies for the dropdown
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
     queryKey: ["companies"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:8000/api/companies/", {
+      const res = await fetch(`${api}/companies/`, {
         credentials: "include",
       });
       return res.json();
@@ -48,7 +49,7 @@ export default function CustomerForm() {
 
   // grab CSRF token on mount
   useEffect(() => {
-    fetch("http://localhost:8000/api/csrf/", {
+    fetch(`${api}/csrf/`, {
       credentials: "include",
     });
   }, []);
@@ -64,7 +65,7 @@ export default function CustomerForm() {
       companyId,
     }) => {
       const csrfToken = getCookie("csrftoken");
-      const res = await fetch("http://localhost:8000/api/customers/", {
+      const res = await fetch(`${api}/customers/`, {
         method: "POST",
         credentials: "include",
         headers: {

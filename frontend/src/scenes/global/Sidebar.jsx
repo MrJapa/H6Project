@@ -77,11 +77,11 @@ const CustomSideBar = () => {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [companies, setCompanies] = useState([]);
-
   const navigate = useNavigate();
+  const api = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/user-details/", {
+    fetch(`${api}/user-details/`, {
       method: "GET",
       credentials: "include",
     })
@@ -116,7 +116,7 @@ const CustomSideBar = () => {
 
   const handleLogout = async () => {
     // 1) Ensure we have a fresh CSRF cookie
-    await fetch("http://localhost:8000/api/csrf/", {
+    await fetch(`${api}/csrf/`, {
       method: "GET",
       credentials: "include",
     });
@@ -125,7 +125,7 @@ const CustomSideBar = () => {
     const csrfToken = getCookie("csrftoken");
 
     // 3) Send logout with header
-    await fetch("http://localhost:8000/api/logout/", {
+    await fetch(`${api}/logout/`, {
       method: "POST",
       credentials: "include",
       headers: {

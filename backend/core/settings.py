@@ -66,13 +66,24 @@ MIDDLEWARE = [
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
+    'https://japa.cc',
+    'https://www.japa.cc',
 ]
-
+CORS_ALLOWED_ORIGIN_REGEXES = [
+    r"^https://(\w+\.)?japa\.cc$",
+]
 CORS_ALLOW_CREDENTIALS = True
+
 
 AUTH_USER_MODEL = 'SafeLedger.User'
 
-CSRF_TRUSTED_ORIGINS = [ "http://localhost:3000",]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_TRUSTED_ORIGINS = [ 
+    "http://localhost:3000", 
+    'https://japa.cc', 
+    'https://www.japa.cc']
+
 
 ROOT_URLCONF = 'core.urls'
 

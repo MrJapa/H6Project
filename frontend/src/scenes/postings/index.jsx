@@ -26,8 +26,10 @@ import CancelOutlinedIcon from '@mui/icons-material/CancelOutlined';
 import CheckCircleOutlinedIcon from '@mui/icons-material/CheckCircleOutlined';
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 
+const api = process.env.REACT_APP_API_URL;
+
 const fetchPostings = async (companyId) => {
-  const url = new URL("http://localhost:8000/api/postings/");
+  const url = new URL(`${api}/postings/`);
   if (companyId) url.searchParams.append("company", companyId);
   const res = await fetch(url.toString(), {
     method: "GET",
@@ -65,7 +67,7 @@ const Postings = () => {
   const handleDelete = async () => {
     const csrfToken = getCookie("csrftoken");
     for (const id of selectionModel) {
-      await fetch(`http://localhost:8000/api/postings/${id}/`, {
+      await fetch(`${api}/postings/${id}/`, {
         method: "DELETE",
         credentials: "include",
         headers: {

@@ -37,12 +37,12 @@ export default function AccountantForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const queryClient = useQueryClient();
-
+  const api = process.env.REACT_APP_API_URL;
   // fetch companies for multi-select
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
     queryFn: async () => {
-      const res = await fetch("http://localhost:8000/api/companies/", {
+      const res = await fetch(`${api}/companies/`, {
         credentials: "include",
       });
       return res.json();
@@ -52,7 +52,7 @@ export default function AccountantForm() {
 
   // ensure CSRF cookie is set
   useEffect(() => {
-    fetch("http://localhost:8000/api/csrf/", {
+    fetch(`${api}/csrf/`, {
       credentials: "include",
     });
   }, []);
@@ -60,7 +60,7 @@ export default function AccountantForm() {
   const mutation = useMutation({
     mutationFn: async (vars) => {
       const csrfToken = getCookie("csrftoken");
-      const res = await fetch("http://localhost:8000/api/accountants/", {
+      const res = await fetch(`${api}/accountants/`, {
         method: "POST",
         credentials: "include",
         headers: {

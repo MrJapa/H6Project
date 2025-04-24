@@ -26,6 +26,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
+  const api = process.env.REACT_APP_API_URL;
 
   // Helper function to get a cookie value by name (for CSRF protection)
   function getCookie(name) {
@@ -44,7 +45,7 @@ export default function Login() {
   }
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/csrf/", {
+    fetch(`${api}/csrf/`, {
       method: "GET",
       credentials: "include", // Include cookies in the request
     })
@@ -63,7 +64,7 @@ export default function Login() {
     setError("");
 
     try {
-      const response = await fetch("http://localhost:8000/api/login/", {
+      const response = await fetch(`${api}/login/`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
