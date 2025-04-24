@@ -26,7 +26,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const api = "https://japa.cc/api";
+  const api = "https://japa.cc/api" || "http://localhost:8000/api";
 
   // Helper function to get a cookie value by name (for CSRF protection)
   function getCookie(name) {

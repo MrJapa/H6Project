@@ -33,7 +33,7 @@ export default function CustomerForm() {
   const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const api = process.env.REACT_APP_API_URL || "http://localhost:8000/api";
+  const api = "https://japa.cc/api" || "http://localhost:8000/api";
 
   // fetch companies for the dropdown
   const { data: companies = [], isLoading: loadingCompanies } = useQuery({
