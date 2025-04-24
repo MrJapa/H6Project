@@ -15,10 +15,12 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from SafeLedger.views import FrontendAppView
 
 
 urlpatterns = [
     path('api/', include('SafeLedger.urls')),  # Include the URLs from the SafeLedger app
     path('admin/', admin.site.urls),
+    re_path(r'^.*$', FrontendAppView.as_view()),  # Catch-all URL for the frontend app
 ]
