@@ -26,7 +26,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const navigate = useNavigate();
-  const api = process.env.REACT_APP_API_URL;
+  const api = "https://japa.cc/api";
 
   // Helper function to get a cookie value by name (for CSRF protection)
   function getCookie(name) {
