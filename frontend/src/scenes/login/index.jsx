@@ -72,7 +72,7 @@ export default function Login() {
         },
         credentials: "include",
         body: JSON.stringify({
-          email: username,   // sending username in the "email" field
+          email: username,
           password: password,
         }),
       });

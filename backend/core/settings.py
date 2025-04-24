@@ -64,27 +64,31 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    'https://japa.cc',
-    'https://www.japa.cc',
-]
-CORS_ALLOWED_ORIGIN_REGEXES = [
-    r"^https://(\w+\.)?japa\.cc$",
-]
+# Allow credentials to be included in cross-origin requests
 CORS_ALLOW_CREDENTIALS = True
+
+# Specify allowed origins for cross-origin requests
+CORS_ALLOWED_ORIGINS = [
+    "https://japa.cc",
+    "https://www.japa.cc",
+]
+
+# Trust these origins for CSRF protection
+CSRF_TRUSTED_ORIGINS = [
+    "https://japa.cc",
+    "https://www.japa.cc",
+]
+
+# Ensure cookies are only sent over HTTPS
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+
+# Set SameSite attribute for cookies
+CSRF_COOKIE_SAMESITE = 'Lax'
+SESSION_COOKIE_SAMESITE = 'Lax'
 
 
 AUTH_USER_MODEL = 'SafeLedger.User'
-
-CSRF_COOKIE_SECURE = True
-SESSION_COOKIE_SECURE = True
-CSRF_TRUSTED_ORIGINS = [ 
-    "http://localhost:3000", 
-    'https://japa.cc', 
-    'https://www.japa.cc']
-
-
 ROOT_URLCONF = 'core.urls'
 
 TEMPLATES = [

@@ -17,7 +17,7 @@ from django.http import HttpResponse
 from .models import Postings, Company, User
 from .serializers import PostingsSerializer, CompanySerializer, CustomerSerializer
 
-
+    
 class FrontendAppView(View):
     def get(self, request):
         try:
