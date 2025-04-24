@@ -1,4 +1,5 @@
 # backend/SafeLedger/views.py
+import os
 import json
 from django.shortcuts import render
 from rest_framework.views import APIView
@@ -10,9 +11,24 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.contrib.auth import authenticate, login, logout, get_user_model
 from django.views.decorators.http import require_POST
+from django.views.generic import View
+from django.http import HttpResponse
 
 from .models import Postings, Company, User
 from .serializers import PostingsSerializer, CompanySerializer, CustomerSerializer
+
+
+class FrontendAppView(View):
+    def get(self, request):
+        try:
+            BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+            with open(os.path.join(BASE_DIR, 'frontend', 'build', 'index.html')) as f:
+                return HttpResponse(f.read())
+        except FileNotFoundError:
+            return HttpResponse(
+                "index.html not found. Please build your React app (npm run build).",
+                status=501,
+            )
 
 class PostingsListView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticated]

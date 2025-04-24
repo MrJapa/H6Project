@@ -1,0 +1,37 @@
+Name: Lars Hjortshøj
+Email: lh@safeledger.dk
+Responsible:
+    MotionSync Physiotherapy
+    CorePulse Physiotherapy
+    Body Harmony Clinic
+    RenewMotion Therapy
+    Dynamic Balance Physiotherapy
+    InMotion Health Clinic
+
+Name: Frank Hvam
+Email: fh@safeledger.dk
+Responsible:
+    Flex & Flow Therapy
+    Kinetic Vitality Clinic
+    Active Renewal Physiotherapy
+
+Name: Casper Christensen
+Email: cc@safeledger.dk
+Responsible:
+    MotionEase Therapy
+    Synergy Movement Clinic
+    Rejuve Motion Therapy
+    Balance Path Physiotherapy
+
+Name: Mia Lyhne
+Email: ml@safeledger.dk
+Responsible:
+    Empower Physio Clinic
+    Life in Motion Physiotherapy
+    PulsePoint Physiotherapy
+
+Name: Iben Hjejle
+Email: ih@safeledger.dk
+Responsible:
+    Momentum Physio Studio
+    RevitaMotion Clinic

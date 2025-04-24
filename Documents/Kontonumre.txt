@@ -1,0 +1,84 @@
+KontoNr	Navn
+1010	Salg af varer/ydelser m/moms
+1020	Salg af varer til udland
+1021	Salg af ydelser til udland
+1025	Salg af varer til EU
+1026	Salg af ydelser til EU
+1030	Salg til kunder u/moms
+1310	Direkte omkostninger m/moms
+1320	Direkte omkostninger varer u/moms indenfor EU
+1321	Direkte omkostninger ydelser u/moms indenfor EU
+1324	Direkte omkostninger varer u/moms 3. lande
+1325	Direkte omkostninger ydelser u/moms 3. lande
+1326	Lønninger, afsluttede projekter (projekt)
+1327	Omkostninger, afsluttede projekter (projekt)
+1330	Vareforbrug (lagermodul)
+2210	Lønninger
+2211	Feriepenge & SH
+2212	Sygedagpenge mv.
+2213	B-honorar
+2214	Personalegoder og multimedier
+2215	Pensioner, arbejdsgiver
+2222	AER (Samlet betaling)
+2223	ATP
+2224	DA-barsel
+2230	KM-penge
+2241	Personaleudgifter
+2242	Projektførte lønninger (projekt)
+2280	Feriepengeforpligtelse, reg.
+2750	Restaurationsbesøg
+2754	Gaver og blomster
+2770	Rejseudgifter
+2800	Annoncer og reklame
+2811	Fragt m/moms
+3110	Brændstof
+3120	Bilforsikring
+3130	Vægtafgift
+3140	Reparation/vedligeholdelse
+3410	Husleje m/moms
+3411	Husleje u/moms
+3420	El, vand og gas
+3430	Vedligeholdelse og rengøring
+3450	Forsikringer (lokale)
+3600	Kontorartikler og tryksager
+3601	Avishold
+3604	Edb-udgifter / software
+3610	Rep./vedligeholdelse af inventar
+3617	Mindre anskaffelser
+3618	Mindre anskaffelser, omvendt betalingspligt
+3620	Telefon 
+3621	Internetforbindelse
+3628	Porto og gebyrer
+3640	Revisor
+3645	Advokat
+3650	Forsikringer
+3660	Faglitteratur m/moms
+3661	Faglitteratur u/moms
+3662	Kontingenter m/moms
+3663	Kontingenter u/moms
+3664	Web-hotel og domænenavne
+3670	Leje/leasing af driftsmidler
+3720	Tab på debitorer
+3770	Kassedifferencer mv.
+3780	Ej fradragsberettigede omkostninger
+3910	Afskrivning, indretning lejede lokaler
+3940	Afskrivning, driftsmidler og inventar
+3950	Afskrivning, edb
+4310	Renteindtægt, bank
+4360	Renteindtægt, debitorer
+4365	Rykkergebyr, debitorer
+4380	Valutakursdifference, debitorer gevinst
+4381	Valutakursdifference, kreditorer gevinst
+4410	Renteudgift, bank
+4450	Låneomkostninger
+4460	Renteudgift, kreditorer
+4465	Renteudgift, Told & Skat
+4470	Finansieringstillæg, selskabsskat
+4480	Valutakursdifference, debitorer tab
+4481	Valutakursdifference, kreditorer tab
+4610	Ekstraordinære indtægter m/moms
+4620	Ekstraordinære indtægter u/moms
+4630	Ekstraordinære udgifter m/moms
+4640	Ekstraordinære udgifter u/moms
+4810	Selskabsskat, aktuel
+4820	Reg. af udskudt skat
