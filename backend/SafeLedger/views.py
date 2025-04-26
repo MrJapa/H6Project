@@ -15,7 +15,7 @@ from django.views.generic import View
 from django.http import HttpResponse
 
 from .models import Postings, Company, User
-from .serializers import PostingsSerializer, CompanySerializer, CustomerSerializer
+from .serializers import PostingsSerializer, CompanySerializer, CustomerSerializer, AccountantSerializer
 
     
 class FrontendAppView(View):
@@ -77,7 +77,7 @@ class CustomerListCreateView(generics.ListCreateAPIView):
         return User.objects.none()
     
 class AccountantListCreateView(generics.ListCreateAPIView):
-    serializer_class = CustomerSerializer
+    serializer_class = AccountantSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):

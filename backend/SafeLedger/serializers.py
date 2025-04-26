@@ -80,7 +80,7 @@ class CustomerSerializer(serializers.ModelSerializer):
         user.companies.add(company)
         return user
 
-class AccoutantSerializer(serializers.ModelSerializer):
+class AccountantSerializer(serializers.ModelSerializer):
     companies = serializers.PrimaryKeyRelatedField(
         queryset=Company.objects.all(), many=True, write_only=True
     )
