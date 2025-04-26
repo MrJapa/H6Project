@@ -53,7 +53,7 @@ export default function AddPostingModal({ open, onClose, onCreated, selectedComp
         postDescription,
       };
       const csrfToken = getCookie("csrftoken");
-      const api = "https://japa.cc/api" || "http://localhost:8000/api";
+      const api = process.env.REACT_APP_API_URL;
       const res = await fetch(`${api}/postings/`, {
         method: "POST",
         credentials: "include",

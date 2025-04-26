@@ -37,7 +37,7 @@ export default function AccountantForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const queryClient = useQueryClient();
-  const api = "https://japa.cc/api" || "http://localhost:8000/api";
+  const api = process.env.REACT_APP_API_URL;
   // fetch companies for multi-select
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],

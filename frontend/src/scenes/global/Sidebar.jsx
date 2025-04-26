@@ -78,7 +78,7 @@ const CustomSideBar = () => {
   const [role, setRole] = useState("");
   const [companies, setCompanies] = useState([]);
   const navigate = useNavigate();
-  const api = "https://japa.cc/api" || "http://localhost:8000/api";
+  const api = process.env.REACT_APP_API_URL;
 
   useEffect(() => {
     fetch(`${api}/user-details/`, {
