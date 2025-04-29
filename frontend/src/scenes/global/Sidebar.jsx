@@ -24,6 +24,7 @@ import BarChartIcon from '@mui/icons-material/BarChart';
 import PieChartIcon from '@mui/icons-material/PieChart';
 import PersonIcon from '@mui/icons-material/Person';
 import BusinessIcon from '@mui/icons-material/Business';
+import SyncIcon from '@mui/icons-material/Sync';
 
 
 const StyledMenuItem = styled(MenuItem)(({ theme }) => ({
@@ -290,6 +291,7 @@ const CustomSideBar = () => {
               </>
             )}
             {(role === "superuser") && (
+              <>
               <Item
                 title="Accountant Management"
                 to="/accountants/new"
@@ -297,6 +299,15 @@ const CustomSideBar = () => {
                 selected={selected}
                 setSelected={setSelected}
               />
+              
+              <Item
+                title="Retrain ML Model"
+                to="/retrain"
+                icon={<SyncIcon />}
+                selected={selected}
+                setSelected={setSelected}
+              />
+              </>
             )}
           </Box>
         </Menu>

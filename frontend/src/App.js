@@ -18,6 +18,7 @@ import AccountantForm from "./scenes/accountant";
 import BarChart from "./scenes/bar";
 import LineChart from "./scenes/line";
 import PieChart from "./scenes/pie";
+import Retrain from "./scenes/retrain";
 
 const queryClient = new QueryClient();
 
@@ -56,6 +57,7 @@ function App() {
                     <Route path="/barchart" element={<BarChart />} />
                     <Route path="/linechart" element={<LineChart />} />
                     <Route path="/piechart" element={<PieChart />} />
+                    <Route path="/retrain" element={<Retrain />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </main>

@@ -44,19 +44,43 @@ class CompanySerializer(serializers.ModelSerializer):
 class CustomerSerializer(serializers.ModelSerializer):
     company = serializers.PrimaryKeyRelatedField(
         queryset=Company.objects.all(), write_only=True)
+    
+    company_name = serializers.SerializerMethodField(read_only=True)
+
     password = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ['id', 'first_name', 'last_name', 'email', 'username', 'company', 'password']
+        #fields = ['id', 'first_name', 'last_name', 'email', 'username', 'company', 'password']
+        fields = [
+            'id', 'first_name', 'last_name',
+            'email', 'username',
+            'company',          # write-only for post/patch
+            'company_name',     # read-only for get
+            'password',
+        ]
+
+    def get_company_name(self, obj):
+        first = obj.companies.first()
+        return first.companyName if first else None
 
     def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
+        # if User.objects.filter(username=value).exists():      CHANGED BECAUSE OF UNIQUE CONSTRAINT
+        #     raise serializers.ValidationError("Username already exists.")
+        qs = User.objects.filter(username=value)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
             raise serializers.ValidationError("Username already exists.")
         return value
     
     def validate_email(self, value):
-        if User.objects.filter(email=value).exists():
+        # if User.objects.filter(email=value).exists():     CHANGED BECAUSE OF UNIQUE CONSTRAINT
+        #     raise serializers.ValidationError("Email already exists.")
+        qs = User.objects.filter(email=value)
+        if self.instance:
+            qs = qs.exclude(pk=self.instance.pk)
+        if qs.exists():
             raise serializers.ValidationError("Email already exists.")
         return value
     
