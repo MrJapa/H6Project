@@ -122,6 +122,11 @@ class CompanyListCreateView(generics.ListCreateAPIView):
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
 
+class CompanyDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Company.objects.all()
+    serializer_class = CompanySerializer
+    permission_classes = [IsAuthenticated]
+
 class CustomerListCreateView(generics.ListCreateAPIView):
     serializer_class = CustomerSerializer
     permission_classes = [IsAuthenticated]
@@ -151,6 +156,16 @@ class CustomerDetailView(generics.RetrieveUpdateDestroyAPIView):
         return User.objects.none()
     
 class AccountantListCreateView(generics.ListCreateAPIView):
+    serializer_class = AccountantSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        user = self.request.user
+        if user.role == "superuser":
+            return User.objects.filter(role="accountant")
+        return User.objects.filter(id=user.id, role="accountant")
+    
+class AccountantDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AccountantSerializer
     permission_classes = [IsAuthenticated]
 

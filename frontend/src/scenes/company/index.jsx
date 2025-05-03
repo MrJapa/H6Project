@@ -1,9 +1,10 @@
 // frontend/src/scenes/company/CompanyForm.jsx
 import React, { useState, useEffect } from "react";
-import { Box, TextField, Button, useTheme } from "@mui/material";
+import { Box, TextField, Button, useTheme, List, ListItemButton, ListItemText, Typography } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
 import {
+  useQuery,
   useMutation,
   useQueryClient,
 } from "@tanstack/react-query";
@@ -16,13 +17,14 @@ function getCookie(name) {
 }
 
 const CompanyForm = () => {
+  const api = process.env.REACT_APP_API_URL;
+  const queryClient = useQueryClient();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [selected, setSelected] = useState(null);
   const [companyName, setCompanyName] = useState("");
-  const queryClient = useQueryClient();
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
-  const api = process.env.REACT_APP_API_URL;
 
   // on mount, grab CSRF cookie
   useEffect(() => {
@@ -32,94 +34,179 @@ const CompanyForm = () => {
     });
   }, []);
 
-  // the actual POST call
-  const createCompany = async ({ companyName }) => {
-    const csrfToken = getCookie("csrftoken");
-    const res = await fetch(`${api}/companies/`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        "X-CSRFToken": csrfToken,
-      },
-      body: JSON.stringify({ companyName }),
-    });
-    if (!res.ok) {
-      const err = await res.json();
-      throw new Error(err.detail || "Failed to create company");
-    }
-    return res.json();
-  };
-
-  // v5 useMutation: single object signature
-  // https://stackoverflow.com/questions/77205639/this-client-defaultmutationoptions-is-not-a-function-react-query-pocketbase-ne
-  const mutation = useMutation({
-    mutationFn: createCompany,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["companies"] });
-      setCompanyName("");
-      setSuccessMessage("Company created successfully!");
-      setTimeout(() => setSuccessMessage(""), 5000); // Clear message after 5 seconds
-    },
-    onError: (error) => {
-      setErrorMessage(error.message || "Failed to create company");
-      setTimeout(() => setErrorMessage(""), 5000); // Clear message after 5 seconds
+  const { data: companies = [], isLoading, error: loadError } = useQuery({
+    queryKey: ["companies"],
+    queryFn: async () => {
+      const res = await fetch(`${api}/companies/`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load companies");
+      return res.json();
     },
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!companyName.trim()) return;
-    mutation.mutate({ companyName: companyName.trim() });
-  };
+  useEffect(() => {
+    if (selected) {
+      setCompanyName(selected.companyName);
+    } else {
+      setCompanyName("");
+    }
+  }, [selected]);
+
+  const createMutation = useMutation({
+    mutationFn: async ({ name }) => {
+      const csrf = getCookie("csrftoken");
+      const res = await fetch(`${api}/companies/`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf,
+        },
+        body: JSON.stringify({ companyName: name }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.detail || "Failed to create company");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["companies"]);
+      setCompanyName("");
+      setSelected(null);
+      setSuccessMessage("Company created successfully!");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    },
+    onError: (err) => {
+      setErrorMessage(err.message || "Failed to create company");
+      setTimeout(() => setErrorMessage(""), 5000);
+    },
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: async ({ name }) => {
+      const csrf = getCookie("csrftoken");
+      const res = await fetch(`${api}/companies/${selected.id}/`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf,
+        },
+        body: JSON.stringify({ companyName: name }),
+      });
+      if (!res.ok) throw new Error("Failed to update company");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["companies"]);
+      setSuccessMessage("Company updated successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    },
+    onError: (err) => {
+      setErrorMessage(err.message || "Failed to update company");
+      setSuccessMessage("");
+      setTimeout(() => setErrorMessage(""), 5000);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const csrf = getCookie("csrftoken");
+      const res = await fetch(`${api}/companies/${selected.id}/`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "X-CSRFToken": csrf },
+      });
+      if (!res.ok) throw new Error("Failed to delete company");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["companies"]);
+      setSelected(null);
+      setSuccessMessage("Company deleted successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    },
+    onError: (err) => {
+      setErrorMessage(err.message || "Failed to delete company");
+      setSuccessMessage("");
+      setTimeout(() => setErrorMessage(""), 5000);
+    },
+  });
+
+  if (isLoading) return <Typography>Loading companies…</Typography>;
+  if (loadError) return <Typography color="error">{loadError.message}</Typography>;
 
   return (
     <Box m="20px">
-      <Header title="NEW COMPANY" subtitle="Add a new company" />
-        <Box display="flex" justifyContent="center" mt={2}>
-          <Box component="form" onSubmit={handleSubmit} sx={{ width: "100%", maxWidth: 600 }}>
-            <Box display="flex" gap={2} mb={2}>
-            <Box
-              component="form"
-              onSubmit={handleSubmit}
-              sx={{ mt: 2, width: 400 }}
+      <Header title="COMPANIES" subtitle="Manage your companies" />
+      <Box display="flex" height="calc(100% - 100px)" mt={2}>
+        <Box width="200px" borderRight="1px solid #ddd" overflow="auto" p={1} height="50vh">
+          <Button
+            fullWidth
+            variant={selected === null ? "contained" : "text"}
+            onClick={() => setSelected(null)}
+          >
+            + New Company
+          </Button>
+          <List>
+            {companies.map((c) => (
+              <ListItemButton
+                key={c.id}
+                selected={selected?.id === c.id}
+                onClick={() => setSelected(c)}
+              >
+                <ListItemText primary={c.companyName} />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+
+        <Box flexGrow={1} p={2}>
+          <TextField
+            fullWidth
+            label="Company Name"
+            value={companyName}
+            onChange={(e) => setCompanyName(e.target.value)}
+            sx={fieldStyles(colors)}
+            margin="normal"
+          />
+
+          {selected === null ? (
+            <Button
+              variant="contained"
+              onClick={() => createMutation.mutate({ name: companyName.trim() })}
+              disabled={createMutation.isLoading || !companyName.trim()}
             >
-              <TextField
-                fullWidth
-                label="Company Name"
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                margin="normal"
-                sx={fieldStyles(colors)}
-              />
+              {createMutation.isLoading ? "Creating…" : "Create"}
+            </Button>
+          ) : (
+            <Box display="flex" gap={2} mt={2}>
               <Button
-                type="submit"
                 variant="contained"
-                sx={{ mt: 2 }}
-                disabled={mutation.isLoading}
-                style={{
-                  backgroundColor: colors.primary[500],
-                  color: colors.grey[100],
+                onClick={() => updateMutation.mutate({ name: companyName.trim() })}
+                disabled={updateMutation.isLoading || !companyName.trim()}
+              >
+                {updateMutation.isLoading ? "Updating…" : "Update"}
+              </Button>
+              <Button
+                variant="outlined"
+                color="error"
+                onClick={() => {
+                  if (window.confirm("Delete this company?")) deleteMutation.mutate();
                 }}
               >
-                {mutation.isLoading ? "Creating…" : "Create Company"}
+                Delete
               </Button>
-              {successMessage && (
-                <Box mt={2} color="green">
-                  {successMessage}
-                </Box>
-              )}
-              {errorMessage && (
-                <Box mt={2} color="red">
-                  {errorMessage}
-                </Box>
-              )}
             </Box>
-          </Box>
+          )}
+
+          {successMessage && <Box mt={2} color="green">{successMessage}</Box>}
+          {errorMessage && <Box mt={2} color="red">{errorMessage}</Box>}
         </Box>
-        </Box>
+      </Box>
     </Box>
   );
-};
+}
 
 export default CompanyForm;

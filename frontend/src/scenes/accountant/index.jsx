@@ -13,6 +13,9 @@ import {
   OutlinedInput,
   Checkbox,
   ListItemText,
+  List,
+  ListItemButton,
+  Typography
 } from "@mui/material";
 import { tokens } from "../../theme";
 import Header from "../../components/Header";
@@ -26,18 +29,21 @@ function getCookie(name) {
 }
 
 export default function AccountantForm() {
-  const theme = useTheme();
-  const colors = tokens(theme.palette.mode);
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [companyIds, setCompanyIds] = useState([]);
-  const [successMessage, setSuccessMessage] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
   const queryClient = useQueryClient();
   const api = process.env.REACT_APP_API_URL;
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+
+  const [selected, setSelected] = useState(null);
+  const emptyForm = {
+    first_name: "", last_name: "",
+    username: "", email: "",
+    password: "", companies: [],
+  };
+  const [form, setForm] = useState(emptyForm);
+
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
   // fetch companies for multi-select
   const { data: companies = [] } = useQuery({
     queryKey: ["companies"],
@@ -50,6 +56,18 @@ export default function AccountantForm() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const {
+    data: accountants = [], isLoading, error: loadError
+  } = useQuery({
+    queryKey: ["accountants"],
+    queryFn: async () => {
+      const res = await fetch(`${api}/accountants/`, { credentials: "include" });
+      if (!res.ok) throw new Error("Failed to load accountants");
+      return res.json();
+    },
+  });
+
+
   // ensure CSRF cookie is set
   useEffect(() => {
     fetch(`${api}/csrf/`, {
@@ -57,8 +75,23 @@ export default function AccountantForm() {
     });
   }, []);
 
-  const mutation = useMutation({
-    mutationFn: async (vars) => {
+  useEffect(() => {
+    if (selected) {
+      setForm({
+        first_name: selected.first_name,
+        last_name: selected.last_name,
+        username: selected.username,
+        email: selected.email,
+        password: "",
+        companies: selected.companies || [],
+      });
+    } else {
+      setForm(emptyForm);
+    }
+  }, [selected]);
+
+  const createMutation = useMutation({
+    mutationFn: async (newAcc) => {
       const csrfToken = getCookie("csrftoken");
       const res = await fetch(`${api}/accountants/`, {
         method: "POST",
@@ -68,12 +101,12 @@ export default function AccountantForm() {
           "X-CSRFToken": csrfToken,
         },
         body: JSON.stringify({
-          first_name: vars.firstName,
-          last_name: vars.lastName,
-          username: vars.username,
-          email: vars.email,
-          password: vars.password,
-          companies: vars.companyIds,
+          first_name: newAcc.firstName,
+          last_name: newAcc.lastName,
+          username: newAcc.username,
+          email: newAcc.email,
+          password: newAcc.password,
+          companies: newAcc.companyIds,
         }),
       });
       if (!res.ok) {
@@ -91,155 +124,226 @@ export default function AccountantForm() {
       return res.json();
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["accountants"] });
-      setFirstName("");
-      setLastName("");
-      setUsername("");
-      setEmail("");
-      setPassword("");
-      setCompanyIds([]);
+      queryClient.invalidateQueries(["accountants"]);
+      setForm(emptyForm);
+      setSelected(null);
       setSuccessMessage("Accountant created successfully!");
-      setTimeout(() => setSuccessMessage(""), 5000); // Clear message after 5 seconds
+      setTimeout(() => setSuccessMessage(""), 5000);
     },
-    onError: (error) => {
-      setErrorMessage(error.message || "Failed to create accountant");
-      setTimeout(() => setErrorMessage(""), 5000); // Clear message after 5 seconds
+    onError: (err) => {
+      setErrorMessage(err.message || "Failed to create accountant");
+      setTimeout(() => setErrorMessage(""), 5000);
     },
   });
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    if (
-      !firstName ||
-      !lastName ||
-      !username ||
-      !email ||
-      !password ||
-      companyIds.length === 0
-    ) {
-      alert("All fields and at least one company are required.");
-      return;
-    }
-    mutation.mutate({
-      firstName,
-      lastName,
-      username,
-      email,
-      password,
-      companyIds,
-    });
-  };
+  const updateMutation = useMutation({
+    mutationFn: async (upd) => {
+      const csrf = getCookie("csrftoken");
+      const res = await fetch(`${api}/accountants/${selected.id}/`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRFToken": csrf,
+        },
+        body: JSON.stringify(upd),
+      });
+      if (!res.ok) throw new Error("Failed to update accountant");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accountants"]);
+      setSuccessMessage("Accountant updated successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    },
+    onError: (err) => {
+      setErrorMessage(err.message || "Failed to update accountant");
+      setSuccessMessage("");
+      setTimeout(() => setErrorMessage(""), 5000);
+    },
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async () => {
+      const csrf = getCookie("csrftoken");
+      const res = await fetch(`${api}/accountants/${selected.id}/`, {
+        method: "DELETE",
+        credentials: "include",
+        headers: { "X-CSRFToken": csrf },
+      });
+      if (!res.ok) throw new Error("Failed to delete accountant");
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries(["accountants"]);
+      setSelected(null);
+      setSuccessMessage("Accountant deleted successfully!");
+      setErrorMessage("");
+      setTimeout(() => setSuccessMessage(""), 5000);
+    },
+    onError: (err) => {
+      setErrorMessage(err.message || "Failed to delete accountant");
+      setSuccessMessage("");
+      setTimeout(() => setErrorMessage(""), 5000);
+    },
+  });
+
+  if (isLoading) return <Typography>Loading accountants…</Typography>;
+  if (loadError) return <Typography color="error">{loadError.message}</Typography>;
+
 
   return (
     <Box m="20px">
-      <Header title="NEW ACCOUNTANT" subtitle="Create an accountant" />
-
-      <Box display="flex" justifyContent="center" mt={2}>
+      <Header title="ACCOUNTANTS" subtitle="Manage your accountants" />
+      <Box display="flex" height="calc(100% - 100px)" mt={2}>
         <Box
-          component="form"
-          onSubmit={handleSubmit}
-          sx={{ maxWidth: 600, width: "100%" }}
+          width="200px"
+          borderRight="1px solid #ddd"
+          overflow="auto"
+          p={1}
+          height="50vh"
         >
-          {/* First + Last Name */}
-          <Box display="flex" gap={2} mb={2}>
-            <TextField
-              fullWidth
-              label="First Name"
-              value={firstName}
-              onChange={(e) => setFirstName(e.target.value)}
-              sx={fieldStyles(colors)}
-            />
-            <TextField
-              fullWidth
-              label="Last Name"
-              value={lastName}
-              onChange={(e) => setLastName(e.target.value)}
-              sx={fieldStyles(colors)}
-            />
-          </Box>
-
-          <Box mb={2}>
-            <TextField
-              fullWidth
-              label="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              sx={fieldStyles(colors)}
-            />
-          </Box>
-
-          <Box mb={2}>
-            <TextField
-              fullWidth
-              label="Email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              sx={fieldStyles(colors)}
-            />
-          </Box>
-
-          <Box mb={2}>
-            <TextField
-              fullWidth
-              label="Password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={fieldStyles(colors)}
-            />
-          </Box>
-
-          <Box mb={2}>
-            <FormControl fullWidth
-            sx={fieldStyles(colors)}
-            >
-              <InputLabel sx={{color: colors.blue, "&.Mui-focused": {color: colors.blue}}}>Companies</InputLabel>
-              <Select
-                multiple
-                value={companyIds}
-                onChange={(e) => setCompanyIds(e.target.value)}
-                input={<OutlinedInput label="Companies" />}
-                renderValue={(selected) =>
-                  companies
-                    .filter((c) => selected.includes(c.id))
-                    .map((c) => c.companyName)
-                    .join(", ")
-                }
-                
-              >
-                {companies.map((c) => (
-                  <MenuItem key={c.id} value={c.id}>
-                    <Checkbox checked={companyIds.includes(c.id)} />
-                    <ListItemText primary={c.companyName} />
-                  </MenuItem>
-                ))}
-              </Select>
-            </FormControl>
-          </Box>
-
           <Button
-            type="submit"
-            variant="contained"
-            disabled={mutation.isLoading}
-            sx={{ mt: 1 }}
-            style={{
-              backgroundColor: colors.primary,
-              color: colors.text,
-            }}
+            fullWidth
+            variant={selected === null ? "contained" : "text"}
+            onClick={() => setSelected(null)}
           >
-            {mutation.isLoading ? "Creating…" : "Create Accountant"}
+            + New Accountant
           </Button>
-          {successMessage && (
-            <Box mt={2} color="green">
-              {successMessage}
-            </Box>
+          <List>
+            {accountants.map((a) => (
+              <ListItemButton
+                key={a.id}
+                selected={selected?.id === a.id}
+                onClick={() => setSelected(a)}
+              >
+                <ListItemText
+                  primary={`${a.first_name} ${a.last_name}`}
+                  secondary={a.username}
+                />
+              </ListItemButton>
+            ))}
+          </List>
+        </Box>
+
+        <Box flexGrow={1} p={2}>
+          {selected === null ? (
+            <>
+              {['first_name','last_name','username','email','password'].map((f) => (
+                <TextField
+                  key={f}
+                  fullWidth
+                  label={f.replace('_',' ').toUpperCase()}
+                  type={f === 'password' ? 'password' : 'text'}
+                  value={form[f]}
+                  onChange={e => setForm(s => ({ ...s, [f]: e.target.value }))}
+                  margin="normal"
+                />
+              ))}
+
+              <FormControl fullWidth margin="normal" sx={fieldStyles(colors)}>
+                <InputLabel sx={{ color: colors.blue, "&.Mui-focused": { color: colors.blue } }}>
+                  Companies
+                </InputLabel>
+                <Select
+                  multiple
+                  value={form.companies}
+                  onChange={e => setForm(s => ({ ...s, companies: e.target.value }))}
+                  input={<OutlinedInput label="Companies" />}
+                  renderValue={selectedIds =>
+                    companies
+                      .filter(c => selectedIds.includes(c.id))
+                      .map(c => c.companyName)
+                      .join(", ")
+                  }
+                >
+                  {companies.map(c => (
+                    <MenuItem key={c.id} value={c.id}>
+                      <Checkbox checked={form.companies.includes(c.id)} />
+                      <ListItemText primary={c.companyName} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Box mt={2}>
+                <Button
+                  variant="contained"
+                  disabled={createMutation.isLoading}
+                  onClick={() => createMutation.mutate(form)}
+                >
+                  {createMutation.isLoading ? "Creating…" : "Create"}
+                </Button>
+              </Box>
+            </>
+          ) : (
+            <>
+              {['first_name','last_name','username','email'].map((f) => (
+                <TextField
+                  key={f}
+                  fullWidth
+                  label={f.replace('_',' ').toUpperCase()}
+                  value={form[f]}
+                  onChange={e => setForm(s => ({ ...s, [f]: e.target.value }))}
+                  margin="normal"
+                />
+              ))}
+
+              <FormControl fullWidth margin="normal" sx={fieldStyles(colors)}>
+                <InputLabel sx={{ color: colors.blue, "&.Mui-focused": { color: colors.blue } }}>
+                  Companies
+                </InputLabel>
+                <Select
+                  multiple
+                  value={form.companies}
+                  onChange={e => setForm(s => ({ ...s, companies: e.target.value }))}
+                  input={<OutlinedInput label="Companies" />}
+                  renderValue={selectedIds =>
+                    companies
+                      .filter(c => selectedIds.includes(c.id))
+                      .map(c => c.companyName)
+                      .join(", ")
+                  }
+                >
+                  {companies.map(c => (
+                    <MenuItem key={c.id} value={c.id}>
+                      <Checkbox checked={form.companies.includes(c.id)} />
+                      <ListItemText primary={c.companyName} />
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+
+              <Box mt={2} display="flex" gap={2}>
+                <Button
+                  variant="contained"
+                  disabled={updateMutation.isLoading}
+                  onClick={() => updateMutation.mutate({
+                    first_name: form.first_name,
+                    last_name: form.last_name,
+                    username: form.username,
+                    email: form.email,
+                    companies: form.companies,
+                  })}
+                >
+                  {updateMutation.isLoading ? "Updating…" : "Update"}
+                </Button>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  onClick={() => {
+                    if (window.confirm("Delete this accountant?"))
+                      deleteMutation.mutate();
+                  }}
+                >
+                  Delete
+                </Button>
+              </Box>
+            </>
           )}
-          {errorMessage && (
-            <Box mt={2} color="red">
-              {errorMessage}
-            </Box>
-          )}
+
+          {successMessage && <Box mt={2} color="green">{successMessage}</Box>}
+          {errorMessage && <Box mt={2} color="red">{errorMessage}</Box>}
         </Box>
       </Box>
     </Box>
