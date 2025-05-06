@@ -1,4 +1,0 @@
-Man skal kunne ændre accounthandlenumber.
-Og på dashboard siden skal der være bokser som viser omsætning - omkostninger - posteringer - og en graf
-
-Første login ændre password
