@@ -21,20 +21,33 @@ import PieChart from "./scenes/pie";
 import Retrain from "./scenes/retrain";
 
 const queryClient = new QueryClient();
+const api = process.env.REACT_APP_API_URL;
+
 
 function App() {
   const [theme, colorMode] = useMode();
-  const [isAuthenticated, setIsAuthenticated] = useState(
-    Boolean(localStorage.getItem("authToken"))
-  );
+  const [isAuthenticated, setIsAuthenticated] = useState(null);
 
   useEffect(() => {
-    const handleStorageChange = () => {
-      setIsAuthenticated(Boolean(localStorage.getItem("authToken")));
-    };
-    window.addEventListener("storage", handleStorageChange);
-    return () => window.removeEventListener("storage", handleStorageChange);
-  }, []);
+    async function checkAuth() {
+      try {
+        const res = await fetch(`${api}/user-details/`, {
+          method: "GET",
+          credentials: "include",
+          redirect: "manual",
+        });
+
+        if (res.status === 302 || res.redirected || !res.ok) {
+          setIsAuthenticated(false);
+        } else {
+          setIsAuthenticated(true);
+        }
+      } catch (error) {
+        setIsAuthenticated(false);
+      }
+    }
+      checkAuth();
+    }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -50,7 +63,6 @@ function App() {
                   <Routes>
                     <Route path="/" element={<Dashboard />} />
                     <Route path="/postings" element={<Postings />} />
-                    <Route path="/login" element={<Login />} />
                     <Route path="/companies/new" element={<CompanyForm />} />
                     <Route path="/customers/new" element={<CustomerForm />} />
                     <Route path="/accountants/new" element={<AccountantForm />} />
@@ -58,6 +70,7 @@ function App() {
                     <Route path="/linechart" element={<LineChart />} />
                     <Route path="/piechart" element={<PieChart />} />
                     <Route path="/retrain" element={<Retrain />} />
+                    <Route path="/login" element={<Navigate to="/" replace />} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </main>

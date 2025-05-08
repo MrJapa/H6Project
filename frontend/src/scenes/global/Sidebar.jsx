@@ -116,28 +116,13 @@ const CustomSideBar = () => {
   };
 
   const handleLogout = async () => {
-    // 1) Ensure we have a fresh CSRF cookie
-    await fetch(`${api}/csrf/`, {
-      method: "GET",
-      credentials: "include",
-    });
+    await fetch(`${api}/csrf/`, { credentials: "include" });
 
-    // 2) Read it from the cookie
     const csrfToken = getCookie("csrftoken");
 
-    // 3) Send logout with header
-    await fetch(`${api}/logout/`, {
-      method: "POST",
-      credentials: "include",
-      headers: {
-        "X-CSRFToken": csrfToken,
-      },
-    });
+    await fetch(`${api}/logout/`, { credentials: "include", method: "POST", headers: { "X-CSRFToken": csrfToken } })
 
-    // 4) Clear client auth and go to login
-    localStorage.removeItem("authToken");
-    navigate("/");
-    window.location.reload();
+    navigate("/login", { replace: true });
   };
 
   return (
