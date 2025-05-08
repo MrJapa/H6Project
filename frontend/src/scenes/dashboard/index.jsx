@@ -3,6 +3,7 @@ import { styled } from "@mui/material/styles";
 import { tokens } from "../../theme";
 import { CompanyContext } from "../../state/CompanyContext";
 import React, { useState, useEffect, useContext } from "react";
+import { useQuery } from "@tanstack/react-query";
 import StatCard from "../../components/StatCard";
 import {
     Box,
@@ -14,17 +15,58 @@ import {
     MenuItem as MuiMenuItem,
   } from "@mui/material";
 
+import FlagIcon from '@mui/icons-material/Flag';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import PlusOneIcon from '@mui/icons-material/PlusOne';
+
+const api = process.env.REACT_APP_API_URL;
+
+const fetchPostings = async (companyId) => {
+  const url = new URL(`${api}/postings/`);
+  if (companyId) url.searchParams.append("company", companyId);
+  const res = await fetch(url.toString(), {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await res.json();
+  return data.map((item) => ({ ...item, id: item.id }));
+};
 
 const Dashboard = () => {
     const theme = useTheme();
     const colors = tokens(theme.palette.mode);
-    const { company } = useContext(CompanyContext);
+    const { selectedCompany } = useContext(CompanyContext);
+
+    const { data: postings = [], isLoading } = useQuery({
+        queryKey: ["postings", selectedCompany],
+        queryFn: () => fetchPostings(selectedCompany),
+        staleTime: Infinity,
+        keepPreviousData: true,
+    });
+
+    const thisYear = new Date().getFullYear();
+    const thisYearData = postings.filter(
+      (p) => new Date(p.postDate).getFullYear() === thisYear
+    );
+    const totalThis = thisYearData.reduce((sum, p) => sum + Number(p.postAmount), 0);
+    const countThis = thisYearData.length;
+    const flaggedThis = thisYearData.filter((p) => p.is_suspicious).length;
+
+    const lastYear = thisYear - 1;
+    const lastYearData = postings.filter(
+      (p) => new Date(p.postDate).getFullYear() === lastYear
+    );
+
+    const totalLast = lastYearData.reduce((sum, p) => sum + Number(p.postAmount), 0);
+    const countLast = lastYearData.length;
+    const flaggedLast = lastYearData.filter((p) => p.is_suspicious).length;
+
+
 
   return (
     <Box m="20px">
       
 
-      {/* Dashboard Grid */}
       <Box
         display="grid"
         gridTemplateColumns="repeat(4, 1fr)"
@@ -34,35 +76,53 @@ const Dashboard = () => {
         sx={{ minHeight: "80vh" }}
 
       >
-        {/* Top row: Four small cards */}
-        <StatCard value="12.304" label="Postings amount" percent="10%" />
-        <StatCard value="2.101" label="Another stat" percent="32%" />
-        <StatCard value="5.400" label="Something else" percent="23%" />
-        <StatCard value="8.123" label="More data" percent="18%" />
+        <StatCard 
+        icon={<AttachMoneyIcon/>} 
+        label="Postings amount" 
+        currentValue={ isLoading ? "..." : totalThis.toLocaleString()} 
+        previousValue={ isLoading ? "..." : totalLast.toLocaleString()}
+        percent="10%" />
 
-        {/* Middle row: Two large cards */}
+        <StatCard 
+        icon={<PlusOneIcon/>} 
+        label="Amount of postings" 
+        currentValue={ isLoading ? "..." : countThis.toLocaleString()} 
+        previousValue={ isLoading ? "..." : countLast.toLocaleString()}
+        percent="32%" />
+
+        <StatCard 
+        icon={<FlagIcon/>} 
+        label="Flagged postings" 
+        currentValue={ isLoading ? "..." : flaggedThis.toLocaleString()} 
+        previousValue={ isLoading ? "..." : flaggedLast.toLocaleString()}
+        percent="23%" />
+
+        <StatCard 
+        value="8.123" 
+        label="More data" 
+        percent="18%" />
+
         <Box
-          bgcolor={colors.primary}
+          bgcolor={colors.boxes}
           borderRadius="5px"
           gridColumn="span 3"
           minHeight="300px"
         />
         <Box
-          bgcolor={colors.primary}
+          bgcolor={colors.boxes}
           borderRadius="5px"
           gridColumn="span 1"
           minHeight="300px"
         />
 
-        {/* Bottom row: Two large cards */}
         <Box
-          bgcolor={colors.primary}
+          bgcolor={colors.boxes}
           borderRadius="5px"
           gridColumn="span 2"
           minHeight="300px"
         />
         <Box
-          bgcolor={colors.primary}
+          bgcolor={colors.boxes}
           borderRadius="5px"
           gridColumn="span 2"
           minHeight="300px"

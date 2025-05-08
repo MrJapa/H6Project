@@ -1,4 +1,8 @@
-import { Box, Typography } from "@mui/material";
+import { Box, Typography, useTheme } from "@mui/material";
+import { tokens } from "../theme";
+import React from "react";
+
+
 
 const PieChartPlaceholder = () => (
   <Box
@@ -18,47 +22,79 @@ const PieChartPlaceholder = () => (
   </Box>
 );
 
-const StatCard = ({ icon, value, label, percent }) => (
+const StatCard = ({ icon, currentValue, previousValue, label, percent }) => {
+
+  const iconElement =
+    React.isValidElement(icon)
+    ? React.cloneElement(icon, { fontSize: "large" })
+    : null;
+
+  const theme = useTheme();
+  const colors = tokens(theme.palette.mode);
+  return (
   <Box
-    bgcolor="#1b232b"
-    color="#fff"
-    p={1.5}
-    borderRadius="5px"
-    display="flex"
-    flexDirection="column"
-    height="100%"
-    justifyContent="space-between"
+  position="relative"
+  bgcolor={colors.boxes}
+  color="#fff"
+  p={1.5}
+  borderRadius={2}
+  display="flex"
+  flexDirection="column"
+  height="100%"
+  justifyContent="space-between"
+  boxSizing="border-box"
   >
-    <Box display="flex" justifyContent="space-between" alignItems="flex-start">
-      {/* Icon placeholder */}
-      <Box
-        width={36}
-        height={36}
-        bgcolor="#fff"
-        color="#222"
-        display="flex"
-        alignItems="center"
-        justifyContent="center"
-        fontSize={14}
-        borderRadius={2}
-        mr={1}
-      >
-        {icon || "ICON"}
-      </Box>
-      <PieChartPlaceholder />
-    </Box>
-    <Box display="flex" justifyContent="space-between" alignItems="end">
-      <Box>
-        <Typography variant="h5" fontWeight={700} sx={{lineHeight:1}}>
-          {value}
-        </Typography>
-        <Typography variant="body2">{label}</Typography>
-      </Box>
-      <Typography variant="h6" fontWeight={500}>
-        {percent}
+    <Box textAlign="center">
+      <Typography variant="subtitle2" gutterBottom>
+        {label}
       </Typography>
     </Box>
-  </Box>
+
+    <Box position="relative" flexGrow={1}>
+
+        {iconElement && (
+          <Box
+            position="absolute"
+            left={16}
+            top="50%"
+            sx={{ transform: "translateY(-50%)" }}
+          >
+            {iconElement}
+          </Box>
+        )}
+
+
+        <Box
+          position="absolute"
+          left="50%"
+          top="50%"
+          sx={{ transform: "translate(-50%, -50%)" }}
+          textAlign="center"
+        >
+          <Typography variant="h5" fontWeight="bold">
+            {currentValue}
+          </Typography>
+          <Typography variant="body2" fontWeight="bold">
+            {previousValue}
+          </Typography>
+        </Box>
+      </Box>
+
+
+      <Box
+        position="absolute"
+        bottom={16}
+        right={16}
+        display="flex"
+        alignItems="center"
+      >
+        <Typography variant="caption" mr={1}>
+          {percent}
+        </Typography>
+        <PieChartPlaceholder />
+      </Box>
+    </Box>
 );
+};
 
 export default StatCard;
