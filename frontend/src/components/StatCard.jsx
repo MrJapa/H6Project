@@ -1,28 +1,28 @@
 import { Box, Typography, useTheme } from "@mui/material";
 import { tokens } from "../theme";
 import React from "react";
+import { Gauge, gaugeClasses } from "@mui/x-charts/Gauge";
 
 
+const StatCard = ({ icon, currentValue = 0, previousValue = 0, label }) => {
 
-const PieChartPlaceholder = () => (
-  <Box
-    width={60}
-    height={60}
-    bgcolor="#D6D6D6"
-    borderRadius="50%"
-    display="flex"
-    alignItems="center"
-    justifyContent="center"
-    color="#222"
-    fontSize={14}
-  >
-    <Typography align="center" variant="caption">
-      PIE<br/>CHART
-    </Typography>
-  </Box>
-);
+  const currNum = Number(
+    typeof currentValue === 'string'
+      ? currentValue.replace(/[^\d.-]/g, '')
+      : currentValue
+  );
+  const prevNum = Number(
+    typeof previousValue === 'string'
+      ? previousValue.replace(/[^\d.-]/g, '')
+      : previousValue
+  );
 
-const StatCard = ({ icon, currentValue, previousValue, label, percent }) => {
+  const percentage = prevNum > 0
+    ? Math.round((currNum / prevNum) * 100)
+    : 0;
+
+  const niceCurr = currNum.toLocaleString();
+  const nicePrev = prevNum.toLocaleString();
 
   const iconElement =
     React.isValidElement(icon)
@@ -72,10 +72,10 @@ const StatCard = ({ icon, currentValue, previousValue, label, percent }) => {
           textAlign="center"
         >
           <Typography variant="h5" fontWeight="bold">
-            {currentValue}
+            {currentValue != null ? currentValue.toLocaleString() : "..."}
           </Typography>
           <Typography variant="body2" fontWeight="bold">
-            {previousValue}
+            {previousValue != null ? previousValue.toLocaleString() : "..."}
           </Typography>
         </Box>
       </Box>
@@ -88,10 +88,21 @@ const StatCard = ({ icon, currentValue, previousValue, label, percent }) => {
         display="flex"
         alignItems="center"
       >
-        <Typography variant="caption" mr={1}>
-          {percent}
-        </Typography>
-        <PieChartPlaceholder />
+        <Gauge
+        width={80}
+        height={60}
+        value={percentage}
+        minValue={0}
+        maxValue={prevNum > 0 ? prevNum : 0}
+        startAngle={-90}
+        endAngle={90}
+        text={`${percentage}%`}
+        sx={(theme) => ({
+        [`& .${gaugeClasses.valueArc}`]: {
+          fill: colors.light_blue,
+        },
+        })}
+        />
       </Box>
     </Box>
 );

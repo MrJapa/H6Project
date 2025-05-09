@@ -34,6 +34,8 @@ const PostingsLineChart = ({
   accountHandleNumber,
   postDateRange,
   suspiciousFilter,
+  width = '80%',
+  height = '600px',
 }) => {
   const [fromDate, toDate] = postDateRange;
   const { selectedCompany } = useContext(CompanyContext);
@@ -93,7 +95,7 @@ const PostingsLineChart = ({
   justifyContent="center"
   alignItems="center"
 >
-  <Box width="80%" height="600px" margin="20px">
+  <Box width={width} height={height} margin="20px">
     <ResponsiveChartContainer
       series={[{ type: 'line', data: yData, label: 'Total Post Amount' }]}
       xAxis={[{ scaleType: 'band', data: xData, label: 'Month-Year' }]}

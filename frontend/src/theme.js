@@ -11,7 +11,7 @@ export const tokens = (mode) => {
         grey: "#7E9096",
         boxes: "#1b232b",
         blue: "#61AFEF",
-        light_blue: "#56B6C2",
+        light_blue: "#01B2AF",
         text: "#FFFFFF",
         green: "#98C379",
         yellow: "#E5C07B",
