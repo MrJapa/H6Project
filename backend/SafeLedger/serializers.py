@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from .models import User, Postings, Company
 from .ml.ml_model import evaluate_posting
+from sklearn.exceptions import NotFittedError
 
 class PostingsSerializer(serializers.ModelSerializer):
     postDate = serializers.DateField(format="%d-%m-%Y")
@@ -26,8 +27,10 @@ class PostingsSerializer(serializers.ModelSerializer):
             'accountHandleNumber': posting.accountHandleNumber,
             'postAmount': float(posting.postAmount),
         }
-        posting.is_suspicious = evaluate_posting(data)
-
+        try:
+            posting.is_suspicious = evaluate_posting(data)
+        except (ValueError, NotFittedError):
+            posting.is_suspicious = False
         posting.save()
         return posting
 

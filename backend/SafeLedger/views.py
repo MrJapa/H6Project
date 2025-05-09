@@ -122,6 +122,22 @@ class CompanyListCreateView(generics.ListCreateAPIView):
     serializer_class = CompanySerializer
     permission_classes = [IsAuthenticated]
 
+    def perform_create(self, serializer):
+        company = serializer.save()
+        self.request.user.companies.add(company)
+
+        scaler = StandardScaler()
+        iso = IsolationForest(contamination=0.05, random_state=42)
+        scalers[company.id] = scaler
+        iso_forests[company.id] = iso
+
+        models_dir = os.path.join(os.path.dirname(__file__), "ml/models")
+        os.makedirs(models_dir, exist_ok=True)
+        with open(os.path.join(models_dir, "scalers.pkl"), "wb") as f:
+            pickle.dump(scalers, f)
+        with open(os.path.join(models_dir, "iso_forests.pkl"), "wb") as f:
+            pickle.dump(iso_forests, f)
+
 class CompanyDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Company.objects.all()
     serializer_class = CompanySerializer

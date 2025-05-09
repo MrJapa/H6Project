@@ -11,7 +11,7 @@ import {
   MenuItem as MuiMenuItem,
 } from "@mui/material";
 import { styled } from "@mui/material/styles";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { tokens } from "../../theme";
 import { CompanyContext } from "../../state/CompanyContext";
 import MenuOutlinedIcon from "@mui/icons-material/MenuOutlined";
@@ -78,8 +78,9 @@ const CustomSideBar = ({setIsAuthenticated}) => {
   const [username, setUsername] = useState("");
   const [role, setRole] = useState("");
   const [companies, setCompanies] = useState([]);
-  const navigate = useNavigate();
   const api = process.env.REACT_APP_API_URL;
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     fetch(`${api}/user-details/`, {
@@ -109,7 +110,7 @@ const CustomSideBar = ({setIsAuthenticated}) => {
         }
       })
       .catch(console.error);
-  }, []);
+  }, [location.pathname]);
 
   const handleCompanyChange = (e) => {
     setSelectedCompany(e.target.value);
