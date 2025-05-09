@@ -68,7 +68,7 @@ function getCookie(name) {
 }
 
 
-const CustomSideBar = () => {
+const CustomSideBar = ({setIsAuthenticated}) => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const { selectedCompany, setSelectedCompany } = useContext(CompanyContext);
@@ -117,11 +117,14 @@ const CustomSideBar = () => {
 
   const handleLogout = async () => {
     await fetch(`${api}/csrf/`, { credentials: "include" });
-
     const csrfToken = getCookie("csrftoken");
-
-    await fetch(`${api}/logout/`, { credentials: "include", method: "POST", headers: { "X-CSRFToken": csrfToken } })
-
+    await fetch(`${api}/logout/`, {
+      credentials: "include",
+      method: "POST",
+      headers: { "X-CSRFToken": csrfToken },
+    });
+    localStorage.removeItem("authToken");
+    setIsAuthenticated(false);
     navigate("/login", { replace: true });
   };
 

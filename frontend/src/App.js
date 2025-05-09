@@ -28,15 +28,15 @@ function App() {
   const [theme, colorMode] = useMode();
   const [isAuthenticated, setIsAuthenticated] = useState(null);
 
+  
   useEffect(() => {
     async function checkAuth() {
       try {
         const res = await fetch(`${api}/user-details/`, {
           method: "GET",
           credentials: "include",
-          redirect: "manual",
+          redirect: "follow",
         });
-
         if (res.status === 302 || res.redirected || !res.ok) {
           setIsAuthenticated(false);
         } else {
@@ -46,8 +46,8 @@ function App() {
         setIsAuthenticated(false);
       }
     }
-      checkAuth();
-    }, []);
+    checkAuth();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -57,7 +57,7 @@ function App() {
             <CssBaseline />
             {isAuthenticated ? (
               <div className="app">
-                <CustomSideBar />
+                <CustomSideBar setIsAuthenticated={setIsAuthenticated}/>
                 <main className="content">
                   <Topbar />
                   <Routes>
@@ -80,7 +80,7 @@ function App() {
                 <main className="content">
                   <TopbarTheme />
                   <Routes>
-                    <Route path="/" element={<Login />} />
+                    <Route path="/" element={<Login setIsAuthenticated={setIsAuthenticated}/>} />
                     <Route path="*" element={<Navigate to="/" replace />} />
                   </Routes>
                 </main>

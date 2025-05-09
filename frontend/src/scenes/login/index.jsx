@@ -16,7 +16,7 @@ import {
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 
-export default function Login() {
+export default function Login({setIsAuthenticated}) {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const colorMode = useContext(ColorModeContext);
@@ -83,8 +83,9 @@ export default function Login() {
       if (response.ok) {
         console.log("Login successful:", data.message);
         localStorage.setItem("authToken", "true"); // Save the auth token
-        window.dispatchEvent(new Event("storage")); // Notify other components
-        navigate("/"); // Redirect to dashboard on success
+        setIsAuthenticated(true); // Update the authentication state
+        navigate("/"); // Redirect to the dashboard or home page
+        
       } else {
         console.error("Login error:", data.error);
         setError(data.error || "Login failed");
